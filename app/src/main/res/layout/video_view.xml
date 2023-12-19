@@ -3,6 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="5dp"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
     android:orientation="horizontal"
     android:padding="2dp">
 
@@ -11,6 +15,7 @@
         android:layout_width="70dp"
         android:layout_height="50dp"
         android:contentDescription="@string/image"
+        android:scaleType="fitXY"
         android:src="@mipmap/ic_video_player"
         app:shapeAppearanceOverlay="@style/curved" />
 
@@ -26,6 +31,8 @@
             android:layout_width="match_parent"
             android:layout_height="30dp"
             android:gravity="center_vertical"
+            android:marqueeRepeatLimit="2"
+            android:maxLines="1"
             android:text="@string/video_name"
             android:textColor="@color/black" />
 
@@ -34,6 +41,8 @@
             android:layout_width="match_parent"
             android:layout_height="20dp"
             android:gravity="center_vertical"
+            android:marqueeRepeatLimit="2"
+            android:maxLines="1"
             android:text="@string/folder_name" />
     </LinearLayout>
 
