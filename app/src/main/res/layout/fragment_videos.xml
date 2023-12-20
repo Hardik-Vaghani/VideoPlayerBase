@@ -18,6 +18,7 @@
         android:id="@+id/VideoRV"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:scrollbarThumbVertical="@drawable/scroll_bar_icon"
         android:scrollbars="vertical" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>
