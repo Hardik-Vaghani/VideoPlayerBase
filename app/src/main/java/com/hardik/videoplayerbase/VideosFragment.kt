@@ -17,12 +17,12 @@ class VideosFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_videos, container, false)
         val binding = FragmentVideosBinding.bind(view)
-        binding.VideoRV.setHasFixedSize(true)
-        binding.VideoRV.setItemViewCacheSize(10)
-        binding.VideoRV.layoutManager = LinearLayoutManager(requireContext())
+        binding.videoRV.setHasFixedSize(true)
+        binding.videoRV.setItemViewCacheSize(10)
+        binding.videoRV.layoutManager = LinearLayoutManager(requireContext())
         try {
             binding.totalVideos.text = "${binding.totalVideos.text} ${MainActivity.videoList.size}"
-            binding.VideoRV.adapter = VideoAdapter(requireContext(), MainActivity.videoList)
+            binding.videoRV.adapter = VideoAdapter(requireContext(), MainActivity.videoList)
         } catch (e: Exception) {
             e.printStackTrace()
         }

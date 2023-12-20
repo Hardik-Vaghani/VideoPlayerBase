@@ -15,7 +15,7 @@
         android:textColor="@color/black" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/VideoRV"
+        android:id="@+id/videoRV"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbarThumbVertical="@drawable/scroll_bar_icon"
