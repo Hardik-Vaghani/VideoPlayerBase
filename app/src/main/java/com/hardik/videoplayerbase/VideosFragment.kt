@@ -1,5 +1,6 @@
 package com.hardik.videoplayerbase
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import com.hardik.videoplayerbase.databinding.FragmentVideosBinding
 class VideosFragment : Fragment() {
 
 
+    @SuppressLint("SetTextI18n")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_videos, container, false)
         val binding = FragmentVideosBinding.bind(view)
@@ -19,6 +21,7 @@ class VideosFragment : Fragment() {
         binding.VideoRV.setItemViewCacheSize(10)
         binding.VideoRV.layoutManager = LinearLayoutManager(requireContext())
         try {
+            binding.totalVideos.text = "${binding.totalVideos.text} ${MainActivity.videoList.size}"
             binding.VideoRV.adapter = VideoAdapter(requireContext(), MainActivity.videoList)
         } catch (e: Exception) {
             e.printStackTrace()

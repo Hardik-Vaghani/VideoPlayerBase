@@ -3,7 +3,7 @@
     <string name="all_videos">All Videos</string>
     <string name="all_folders">All Folders</string>
     <string name="total_videos">Total Videos:</string>
-    <string name="total_folders">Total Folders</string>
+    <string name="total_folders">Total Folders:</string>
     <string name="open">Open</string>
     <string name="close">Close</string>
     <string name="feedback">FeedBack</string>
@@ -11,7 +11,7 @@
     <string name="sort_order">Sort Order</string>
     <string name="about">About</string>
     <string name="exit">Exit</string>
-    <string name="nav_text" >Enjoy your entertainment!!</string>
+    <string name="nav_text">Enjoy your entertainment!!</string>
 
     <string name="video_name">Video Name</string>
     <string name="folder_name">Folder Name</string>
