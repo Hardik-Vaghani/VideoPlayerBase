@@ -15,7 +15,7 @@
         android:layout_width="70dp"
         android:layout_height="50dp"
         android:contentDescription="@string/image"
-        android:scaleType="fitXY"
+        android:scaleType="centerCrop"
         android:src="@mipmap/ic_video_player"
         app:shapeAppearanceOverlay="@style/curved" />
 
@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:paddingHorizontal="2dp">
+        android:layout_marginHorizontal="5dp">
 
         <TextView
             android:id="@+id/videoName"
