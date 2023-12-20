@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.MenuItem
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hardik.videoplayerbase.databinding.ActivityFoldersBinding
 import java.io.File
@@ -32,7 +31,7 @@ class FoldersActivity : AppCompatActivity() {
         binding.videoRVFA.setItemViewCacheSize(10)
         binding.videoRVFA.layoutManager = LinearLayoutManager(this@FoldersActivity)
         try {
-            binding.videoRVFA.adapter = VideoAdapter(this@FoldersActivity, currentFolderVideo)
+            binding.videoRVFA.adapter = VideoAdapter(this@FoldersActivity, currentFolderVideo, isFolder = true)
             binding.totalVideosFA.text = "Total Videos: ${currentFolderVideo.size}"
         } catch (e: Exception) {
             e.printStackTrace()
@@ -46,7 +45,7 @@ class FoldersActivity : AppCompatActivity() {
 
     @SuppressLint("InLinedApi", "Recycle", "Range")
     private fun getAllVideos(folderId:String): ArrayList<Video> {
-        var tempList = ArrayList<Video>()
+        val tempList = ArrayList<Video>()
         val selection = MediaStore.Video.Media.BUCKET_ID +" LIKE? "//SQL query passing in side cursor query
         //which type data do you want mention here
         val projection = arrayOf(
