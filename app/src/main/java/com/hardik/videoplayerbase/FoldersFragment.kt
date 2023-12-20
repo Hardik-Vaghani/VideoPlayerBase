@@ -19,8 +19,8 @@ class FoldersFragment : Fragment() {
         binding.FoldersRV.setItemViewCacheSize(10)
         binding.FoldersRV.layoutManager = LinearLayoutManager(requireContext())
         try {
-            binding.totalFolders.text = "${binding.totalFolders.text} ${MainActivity.folderList.size}"
             binding.FoldersRV.adapter = FoldersAdapter(requireContext(), MainActivity.folderList)
+            binding.totalFolders.text = "Total Folders: ${MainActivity.folderList.size}"
         } catch (e: Exception) {
             e.printStackTrace()
         }

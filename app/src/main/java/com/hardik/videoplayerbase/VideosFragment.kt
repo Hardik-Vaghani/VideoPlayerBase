@@ -21,8 +21,8 @@ class VideosFragment : Fragment() {
         binding.videoRV.setItemViewCacheSize(10)
         binding.videoRV.layoutManager = LinearLayoutManager(requireContext())
         try {
-            binding.totalVideos.text = "${binding.totalVideos.text} ${MainActivity.videoList.size}"
             binding.videoRV.adapter = VideoAdapter(requireContext(), MainActivity.videoList)
+            binding.totalVideos.text = "Total Videos: ${MainActivity.videoList.size}"
         } catch (e: Exception) {
             e.printStackTrace()
         }
