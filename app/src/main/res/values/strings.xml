@@ -29,5 +29,12 @@
     <string name="repeat_btn">Menu</string>
     <string name="fullscreen_btn">Menu</string>
     <string name="play_btn">Menu</string>
+    
+    <string name="audio_track">Audio Track</string>
+    <string name="subtitles">Subtitles</string>
+    <string name="booster">Booster</string>
+    <string name="speed">Speed</string>
+    <string name="speed_timer">Speed Timer</string>
+    <string name="pip_mode">Pip Mode</string>
 
 </resources>
