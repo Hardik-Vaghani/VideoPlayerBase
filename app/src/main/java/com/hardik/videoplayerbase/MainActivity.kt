@@ -86,8 +86,13 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 13) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
                 Toast.makeText(this, "Permission Granted!", Toast.LENGTH_SHORT).show()
+                //for first time app install
+                folderList = ArrayList()//now initialize
+                videoList = getAllVideos()
+                setFragment(VideosFragment())
+            }
             else
                 ActivityCompat.requestPermissions(this, arrayOf(WRITE_EXTERNAL_STORAGE), 13)
         }
