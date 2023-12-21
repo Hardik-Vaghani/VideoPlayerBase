@@ -1,8 +1,12 @@
 package com.hardik.videoplayerbase
 
+import android.opengl.Visibility
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import androidx.core.view.WindowCompat
@@ -17,6 +21,7 @@ import com.hardik.videoplayerbase.databinding.ActivityPlayerBinding
 
 class PlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPlayerBinding
+    private lateinit var runnable: Runnable
 
     companion object{
         private lateinit var player : SimpleExoPlayer
@@ -121,6 +126,8 @@ class PlayerActivity : AppCompatActivity() {
         })
 
         playInFullscreen(enable = isFullscreen)//when value is contain isFullscreen val,that is set.
+
+        setVisibility()
     }
 
     private fun playVideo(){
@@ -162,6 +169,21 @@ class PlayerActivity : AppCompatActivity() {
             player.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
             binding.fullScreenBtn.setImageResource(R.drawable.fullscreen_icon)
         }
+    }
+
+    private fun setVisibility(){
+        runnable = Runnable {
+            if (binding.playerView.isControllerVisible) changeVisibility(View.VISIBLE)
+            else changeVisibility(View.INVISIBLE)
+            Handler(Looper.getMainLooper()).postDelayed(runnable,200)
+        }
+        Handler(Looper.getMainLooper()).postDelayed(runnable,0)
+    }
+
+    private fun changeVisibility(visibility: Int){
+        binding.topController.visibility = visibility
+        binding.bottomController.visibility = visibility
+        binding.playPauseBtn.visibility = visibility
     }
     override fun onDestroy() {
         super.onDestroy()
