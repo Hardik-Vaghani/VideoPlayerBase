@@ -4,12 +4,12 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Window
-import android.view.WindowInsetsController
 import android.view.WindowManager
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.hardik.videoplayerbase.databinding.ActivityPlayerBinding
 
@@ -20,6 +20,7 @@ class PlayerActivity : AppCompatActivity() {
         private lateinit var player : SimpleExoPlayer
         lateinit var playerList: ArrayList<Video>
         var position: Int = -1
+        var repeat:Boolean = false
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,8 +69,24 @@ class PlayerActivity : AppCompatActivity() {
         }
         binding.nextBtn.setOnClickListener{ nextPrevVideo() }
         binding.prevBtn.setOnClickListener{ nextPrevVideo(isNext = false) }
+        binding.repeatBtn.setOnClickListener {
+            if (repeat){
+                repeat = false
+                player.repeatMode = Player.REPEAT_MODE_OFF
+                binding.repeatBtn.setImageResource(R.drawable.repeat_icon_off)
+            }else{
+                repeat = true
+                player.repeatMode = Player.REPEAT_MODE_ONE
+                binding.repeatBtn.setImageResource(R.drawable.repeat_icon_one)
+            }
+        }
     }
     private fun createPlayer(){
+        try {
+            player.release()//for release all old resource in side stored
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
         binding.videoTitle.text = playerList[position].title
         binding.videoTitle.isSelected = true
         player = SimpleExoPlayer.Builder(this).build()
@@ -77,8 +94,17 @@ class PlayerActivity : AppCompatActivity() {
         val mediaItem = MediaItem.fromUri(playerList[position].artUri)//directly play
         player.setMediaItem(mediaItem)
         player.prepare()
-//        player.play()
         playVideo()
+
+        //add completion listener
+        player.addListener(object : Player.Listener{
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                super.onPlaybackStateChanged(playbackState)
+                if (playbackState == Player.STATE_ENDED){//when video finish
+                    nextPrevVideo()
+                }
+            }
+        })
     }
 
     private fun playVideo(){
@@ -97,13 +123,15 @@ class PlayerActivity : AppCompatActivity() {
         createPlayer()
     }
     private fun setPosition(isIncrement:Boolean = true){
-        if (isIncrement){
-            if (playerList.size -1 == position) position = 0 //if list size is last item so set 0 index
-            else ++position
-        }else{
-            if (position == 0)
-                position = playerList.size -1 //set last position of list
-            else --position
+        if (!repeat){
+            if (isIncrement){
+                if (playerList.size -1 == position) position = 0 //if list size is last item so set 0 index
+                else ++position
+            }else{
+                if (position == 0)
+                    position = playerList.size -1 //set last position of list
+                else --position
+            }
         }
     }
     override fun onDestroy() {

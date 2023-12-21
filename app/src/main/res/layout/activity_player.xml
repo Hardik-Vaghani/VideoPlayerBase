@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/black"
     tools:context=".PlayerActivity">
 
     <com.google.android.exoplayer2.ui.PlayerView
@@ -96,11 +97,12 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <ImageButton
+            android:id="@+id/repeatBtn"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:backgroundTint="@android:color/transparent"
             android:contentDescription="@string/repeat_btn"
-            android:src="@drawable/repeat_icon"
+            android:src="@drawable/repeat_icon_off"
             app:tint="@color/white"
             tools:ignore="PrivateResource" />
 
