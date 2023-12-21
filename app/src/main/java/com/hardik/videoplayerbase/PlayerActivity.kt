@@ -29,6 +29,7 @@ class PlayerActivity : AppCompatActivity() {
         var position: Int = -1
         var repeat:Boolean = false
         private var isFullscreen: Boolean = false
+        private var isLocked: Boolean = false
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,7 +100,25 @@ class PlayerActivity : AppCompatActivity() {
                 playInFullscreen(enable = true)
             }
         }
+
+        binding.lockButton.setOnClickListener {
+            if(!isLocked){
+                //for hide control
+                isLocked = true
+                binding.playerView.hideController()
+                binding.playerView.useController = false
+                binding.lockButton.setImageResource(R.drawable.lock_close_icon)
+            }else{
+                //for show control
+                isLocked = false
+                binding.playerView.useController = true
+                binding.playerView.showController()
+                binding.lockButton.setImageResource(R.drawable.lock_open_icon)
+
+            }
+        }
     }
+
     private fun createPlayer(){
         try {
             player.release()//for release all old resource in side stored
@@ -145,6 +164,7 @@ class PlayerActivity : AppCompatActivity() {
         else setPosition(isIncrement = false)
         createPlayer()
     }
+
     private fun setPosition(isIncrement:Boolean = true){
         if (!repeat){
             if (isIncrement){
@@ -184,7 +204,13 @@ class PlayerActivity : AppCompatActivity() {
         binding.topController.visibility = visibility
         binding.bottomController.visibility = visibility
         binding.playPauseBtn.visibility = visibility
+
+        //when lock is close that time it's not hide but always show
+        if (isLocked) binding.lockButton.visibility = View.VISIBLE
+        // when lock is open that time it's work
+        else binding.lockButton.visibility = visibility
     }
+
     override fun onDestroy() {
         super.onDestroy()
         player.release()
