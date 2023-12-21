@@ -1,7 +1,14 @@
 package com.hardik.videoplayerbase
 
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Window
+import android.view.WindowInsetsController
+import android.view.WindowManager
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.hardik.videoplayerbase.databinding.ActivityPlayerBinding
@@ -16,10 +23,21 @@ class PlayerActivity : AppCompatActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_player)
+        //hide top title bar
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        //for knock display
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
         binding = ActivityPlayerBinding.inflate(layoutInflater)
-        setTheme(R.style.coolPinkNav)
+        setTheme(R.style.playerActivityTheme)
         setContentView(binding.root)
+        // for immersive mode (fullscreen mode) this for bottom button of android
+        WindowCompat.setDecorFitsSystemWindows(window,false)
+        WindowInsetsControllerCompat(window,binding.root).let { controller ->
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
         initializeLayout()
         initializeBinding()
     }
