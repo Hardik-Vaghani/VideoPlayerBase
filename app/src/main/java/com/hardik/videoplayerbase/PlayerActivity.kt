@@ -1,5 +1,6 @@
 package com.hardik.videoplayerbase
 
+import android.annotation.SuppressLint
 import android.graphics.drawable.ColorDrawable
 import android.opengl.Visibility
 import android.os.Build
@@ -11,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -18,10 +20,12 @@ import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.hardik.videoplayerbase.databinding.ActivityPlayerBinding
 import com.hardik.videoplayerbase.databinding.MoreFeaturesBinding
+import java.util.Locale
 
 class PlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPlayerBinding
@@ -34,6 +38,8 @@ class PlayerActivity : AppCompatActivity() {
         var repeat:Boolean = false
         private var isFullscreen: Boolean = false
         private var isLocked: Boolean = false
+        @SuppressLint("StaticFieldLeak")
+        lateinit var trackSelector: DefaultTrackSelector
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,6 +137,31 @@ class PlayerActivity : AppCompatActivity() {
                 .setBackground(ColorDrawable(0x803700B3.toInt()))
                 .create()
             dialog.show()
+
+            //for audio Track
+            bindingMF.audioTrack.setOnClickListener{
+                dialog.dismiss()
+                playVideo()
+
+                val audioTrack = ArrayList<String>()
+                 for (i in 0 until player.currentTrackGroups.length){
+                      if (player.currentTrackGroups.get(i).getFormat(0).selectionFlags == C.SELECTION_FLAG_DEFAULT){//if that track is selectable so select it.
+                          audioTrack.add(Locale(player.currentTrackGroups.get(i).getFormat(0).language.toString()).displayLanguage)//Locale is short form to long form convert
+
+                      }
+                 }
+                val tempTracks = audioTrack.toArray(arrayOfNulls<CharSequence>(audioTrack.size))//convert arrayList to CharSequence
+                MaterialAlertDialogBuilder(this,R.style.alertDialog)
+                    .setTitle("Select Language")
+                    .setOnCancelListener { playVideo() }
+                    .setBackground(ColorDrawable(0x803700B3.toInt()))
+                    .setItems(tempTracks){_, position ->
+                        Toast.makeText(this,audioTrack[position]+ " selected", Toast.LENGTH_SHORT).show()
+                        trackSelector.setParameters(trackSelector.buildUponParameters().setPreferredAudioLanguage(audioTrack[position]))// change audio track on video
+                    }
+                    .create()
+                    .show()
+            }
         }
     }
 
@@ -140,9 +171,10 @@ class PlayerActivity : AppCompatActivity() {
         }catch (e:Exception){
             e.printStackTrace()
         }
+        trackSelector = DefaultTrackSelector(this)
         binding.videoTitle.text = playerList[position].title
         binding.videoTitle.isSelected = true
-        player = SimpleExoPlayer.Builder(this).build()
+        player = SimpleExoPlayer.Builder(this).setTrackSelector(trackSelector).build()
         binding.playerView.player = player
         val mediaItem = MediaItem.fromUri(playerList[position].artUri)//directly play
         player.setMediaItem(mediaItem)
