@@ -25,6 +25,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
+            android:id="@+id/backBtn"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:backgroundTint="@android:color/transparent"
@@ -69,6 +70,7 @@
 
 
     <ImageButton
+        android:id="@+id/playPauseBtn"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:contentDescription="@string/play_btn"

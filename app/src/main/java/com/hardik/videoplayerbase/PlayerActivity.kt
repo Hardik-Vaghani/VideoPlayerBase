@@ -7,10 +7,10 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 import com.hardik.videoplayerbase.databinding.ActivityPlayerBinding
 
 class PlayerActivity : AppCompatActivity() {
-    lateinit var binding: ActivityPlayerBinding
+    private lateinit var binding: ActivityPlayerBinding
 
     companion object{
-        lateinit var player : SimpleExoPlayer
+        private lateinit var player : SimpleExoPlayer
         lateinit var playerList: ArrayList<Video>
         var position: Int = -1
     }
@@ -21,6 +21,7 @@ class PlayerActivity : AppCompatActivity() {
         setTheme(R.style.coolPinkNav)
         setContentView(binding.root)
         initializeLayout()
+        initializeBinding()
     }
 
     private fun initializeLayout(){
@@ -28,13 +29,25 @@ class PlayerActivity : AppCompatActivity() {
             "AllVideos" ->{
                 playerList = ArrayList()
                 playerList.addAll(MainActivity.videoList)
+                createPlayer()
             }
             "FolderActivity" ->{
                 playerList = ArrayList()
                 playerList.addAll(FoldersActivity.currentFolderVideo)
+                createPlayer()
             }
         }
-        createPlayer()
+    }
+
+    private fun initializeBinding(){
+        binding.backBtn.setOnClickListener{
+            finish()//when click this button activity close
+        }
+        binding.playPauseBtn.setOnClickListener{
+            //if player is playing so pause either play
+            if (player.isPlaying) pauseVideo()
+            else playVideo()
+        }
     }
     private fun createPlayer(){
         binding.videoTitle.text = playerList[position].title
@@ -44,9 +57,19 @@ class PlayerActivity : AppCompatActivity() {
         val mediaItem = MediaItem.fromUri(playerList[position].artUri)//directly play
         player.setMediaItem(mediaItem)
         player.prepare()
+//        player.play()
+        playVideo()
+    }
+
+    private fun playVideo(){
+        binding.playPauseBtn.setImageResource(R.drawable.pause_icon)
         player.play()
     }
 
+    private fun pauseVideo(){
+        binding.playPauseBtn.setImageResource(R.drawable.play_icon)
+        player.pause()
+    }
     override fun onDestroy() {
         super.onDestroy()
         player.release()
