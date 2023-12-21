@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@color/black"
     android:orientation="vertical">
+    <!--    android:background="@color/black"-->
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,37 +12,43 @@
         android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
-            android:layout_width="0dp"
-            android:layout_weight="1"
             style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/ripple_effect"
             android:text="@string/audio_track"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
             app:icon="@drawable/audio_track_icon"
-            android:background="@android:color/transparent"
-            android:textAllCaps="false"
-            app:iconGravity="top" />
+            app:iconGravity="top"
+            app:iconTint="@color/white" />
 
         <com.google.android.material.button.MaterialButton
-            android:layout_width="0dp"
-            android:layout_weight="1"
             style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/ripple_effect"
             android:text="@string/subtitles"
-            app:icon="@drawable/subtitles_icon"
-            android:background="@android:color/transparent"
             android:textAllCaps="false"
-            app:iconGravity="top" />
+            android:textColor="@color/white"
+            app:icon="@drawable/subtitles_icon"
+            app:iconGravity="top"
+            app:iconTint="@color/white" />
 
         <com.google.android.material.button.MaterialButton
-            android:layout_width="0dp"
-            android:layout_weight="1"
             style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/ripple_effect"
             android:text="@string/booster"
-            app:icon="@drawable/booster_icon"
-            android:background="@android:color/transparent"
             android:textAllCaps="false"
-            app:iconGravity="top" />
+            android:textColor="@color/white"
+            app:icon="@drawable/booster_icon"
+            app:iconGravity="top"
+            app:iconTint="@color/white" />
 
     </LinearLayout>
 
@@ -52,37 +58,43 @@
         android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
-            android:layout_width="0dp"
-            android:layout_weight="1"
             style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/ripple_effect"
             android:text="@string/speed"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
             app:icon="@drawable/speed_icon"
-            android:background="@android:color/transparent"
-            android:textAllCaps="false"
-            app:iconGravity="top" />
+            app:iconGravity="top"
+            app:iconTint="@color/white" />
 
         <com.google.android.material.button.MaterialButton
-            android:layout_width="0dp"
-            android:layout_weight="1"
             style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/ripple_effect"
             android:text="@string/speed_timer"
-            app:icon="@drawable/timer_icon"
-            android:background="@android:color/transparent"
             android:textAllCaps="false"
-            app:iconGravity="top" />
+            android:textColor="@color/white"
+            app:icon="@drawable/timer_icon"
+            app:iconGravity="top"
+            app:iconTint="@color/white" />
 
         <com.google.android.material.button.MaterialButton
-            android:layout_width="0dp"
-            android:layout_weight="1"
             style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/ripple_effect"
             android:text="@string/pip_mode"
-            app:icon="@drawable/pip_icon"
-            android:background="@android:color/transparent"
             android:textAllCaps="false"
-            app:iconGravity="top" />
+            android:textColor="@color/white"
+            app:icon="@drawable/pip_icon"
+            app:iconGravity="top"
+            app:iconTint="@color/white" />
 
     </LinearLayout>
 
