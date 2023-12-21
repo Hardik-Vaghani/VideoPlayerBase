@@ -48,6 +48,8 @@ class PlayerActivity : AppCompatActivity() {
             if (player.isPlaying) pauseVideo()
             else playVideo()
         }
+        binding.nextBtn.setOnClickListener{ nextPrevVideo() }
+        binding.prevBtn.setOnClickListener{ nextPrevVideo(isNext = false) }
     }
     private fun createPlayer(){
         binding.videoTitle.text = playerList[position].title
@@ -69,6 +71,22 @@ class PlayerActivity : AppCompatActivity() {
     private fun pauseVideo(){
         binding.playPauseBtn.setImageResource(R.drawable.play_icon)
         player.pause()
+    }
+
+    private fun nextPrevVideo(isNext:Boolean = true){
+        if (isNext) setPosition()
+        else setPosition(isIncrement = false)
+        createPlayer()
+    }
+    private fun setPosition(isIncrement:Boolean = true){
+        if (isIncrement){
+            if (playerList.size -1 == position) position = 0 //if list size is last item so set 0 index
+            else ++position
+        }else{
+            if (position == 0)
+                position = playerList.size -1 //set last position of list
+            else --position
+        }
     }
     override fun onDestroy() {
         super.onDestroy()

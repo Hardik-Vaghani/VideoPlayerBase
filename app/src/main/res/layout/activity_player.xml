@@ -73,15 +73,15 @@
         android:id="@+id/playPauseBtn"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
         android:contentDescription="@string/play_btn"
+        android:focusable="true"
         android:src="@drawable/play_icon"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:clickable="true"
-        android:focusable="true"
-        android:background="?attr/selectableItemBackground"
         app:tint="@color/white" />
 
     <LinearLayout
@@ -89,8 +89,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#42000000"
-        android:orientation="horizontal"
         android:gravity="end|bottom"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -103,20 +103,25 @@
             android:src="@drawable/repeat_icon"
             app:tint="@color/white"
             tools:ignore="PrivateResource" />
+
         <ImageButton
+            android:id="@+id/prevBtn"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:backgroundTint="@android:color/transparent"
             android:contentDescription="@string/prev_btn"
             android:src="@drawable/previous_icon"
             app:tint="@color/white" />
+
         <ImageButton
+            android:id="@+id/nextBtn"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:backgroundTint="@android:color/transparent"
             android:contentDescription="@string/next_btn"
             android:src="@drawable/next_icon"
             app:tint="@color/white" />
+
         <ImageButton
             android:layout_width="50dp"
             android:layout_height="50dp"
