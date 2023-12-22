@@ -3,8 +3,10 @@ package com.hardik.videoplayerbase
 import android.annotation.SuppressLint
 import android.app.AppOpsManager
 import android.app.PictureInPictureParams
+import android.app.PictureInPictureUiState
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.drawable.ColorDrawable
 import android.media.audiofx.LoudnessEnhancer
 import android.net.Uri
@@ -19,6 +21,7 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -57,6 +60,7 @@ class PlayerActivity : AppCompatActivity() {
         private lateinit var loudnessEnhancer: LoudnessEnhancer
         private var speed: Float = 1.0f
         private var timer:Timer? = null
+        var pipStatus:Int = 0
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -318,6 +322,7 @@ class PlayerActivity : AppCompatActivity() {
                         dialog.dismiss()
                         binding.playerView.hideController()
                         playVideo()
+                        pipStatus = 0
                     }
                     else {
     //                    when permission isn't granted, so requesting for permission
@@ -452,6 +457,19 @@ class PlayerActivity : AppCompatActivity() {
             }
         }
         player.setPlaybackSpeed(speed)
+    }
+
+    override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        if (pipStatus != 0){
+            finish()//close earlier activity and start new one activity for new pip mode
+            val intent = Intent(this,PlayerActivity::class.java)
+            when(pipStatus){
+                1 -> intent.putExtra("class","FolderActivity")//intent get from the videoAdapter
+                2 -> intent.putExtra("class","AllVideos")//intent get from the videoAdapter
+            }
+            startActivity(intent)
+        }
     }
 
     override fun onDestroy() {
