@@ -30,6 +30,9 @@ import com.hardik.videoplayerbase.databinding.MoreFeaturesBinding
 import com.hardik.videoplayerbase.databinding.SpeedDialogBinding
 import java.text.DecimalFormat
 import java.util.Locale
+import java.util.Timer
+import java.util.TimerTask
+import kotlin.system.exitProcess
 
 class PlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPlayerBinding
@@ -48,6 +51,7 @@ class PlayerActivity : AppCompatActivity() {
         private lateinit var trackSelector: DefaultTrackSelector
         private lateinit var loudnessEnhancer: LoudnessEnhancer
         private var speed: Float = 1.0f
+        private var timer:Timer? = null
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -255,6 +259,43 @@ class PlayerActivity : AppCompatActivity() {
                 bindingS.plusBtn.setOnClickListener {
                     changeSped(isIncrement = true)
                     bindingS.speedTxt.text = "${DecimalFormat("#.##").format(speed)} X"
+                }
+            }
+
+            bindingMF.sleepTimeBtn.setOnClickListener {
+                dialog.dismiss()
+                if(timer != null) Toast.makeText(this,"Timer is Already Running!!\nClose app to rest time!!",Toast.LENGTH_SHORT).show()
+                else{
+                    var sleepTime = 15
+                    val customDialogS = LayoutInflater.from(this).inflate(R.layout.speed_dialog, binding.root, false)
+                    val bindingS = SpeedDialogBinding.bind(customDialogS)
+                    val dialogS = MaterialAlertDialogBuilder(this).setView(customDialogS)
+                        .setCancelable(false)
+                        .setPositiveButton("OK") { self, _ ->
+                            // initialize timer
+                            timer = Timer()
+                            val task = object :TimerTask(){
+                                override fun run() {
+                                    moveTaskToBack(true)//this two line write app is completely close
+                                    exitProcess(1)//only use that, app also close but again start
+                                }
+                            }
+                            timer!!.schedule(task,sleepTime*60*1000.toLong())
+                            self.dismiss()
+                            playVideo()
+                        }
+                        .setBackground(ColorDrawable(0x803700B3.toInt()))
+                        .create()
+                    dialogS.show()
+                    bindingS.speedTxt.text = "$sleepTime Min"
+                    bindingS.minusBtn.setOnClickListener {
+                        if (sleepTime > 15) sleepTime -= 15
+                        bindingS.speedTxt.text = "$sleepTime Min"
+                    }
+                    bindingS.plusBtn.setOnClickListener {
+                        if (sleepTime < 120)sleepTime += 15
+                        bindingS.speedTxt.text = "$sleepTime Min"
+                    }
                 }
             }
         }
