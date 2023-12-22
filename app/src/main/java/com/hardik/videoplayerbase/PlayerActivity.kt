@@ -84,6 +84,22 @@ class PlayerActivity : AppCompatActivity() {
         }
         initializeLayout()
         initializeBinding()
+        binding.forwardFL.setOnClickListener(DoubleClickListener(callback = object: DoubleClickListener.Callback{
+            override fun doubleClicked() {
+                binding.playerView.showController()
+                binding.forwardBtn.visibility = View.VISIBLE
+                player.seekTo(player.currentPosition + 10000L)
+            }
+
+        }))
+        binding.rewindFL.setOnClickListener(DoubleClickListener(callback = object: DoubleClickListener.Callback{
+            override fun doubleClicked() {
+                binding.playerView.showController()
+                binding.rewindBtn.visibility = View.VISIBLE
+                player.seekTo(player.currentPosition - 10000L)
+            }
+
+        }))
     }
 
     private fun initializeLayout() {
@@ -444,6 +460,9 @@ class PlayerActivity : AppCompatActivity() {
         if (isLocked) binding.lockButton.visibility = View.VISIBLE
         // when lock is open that time it's work
         else binding.lockButton.visibility = visibility
+
+        binding.rewindBtn.visibility = View.GONE
+        binding.forwardBtn.visibility = View.GONE
     }
 
     private fun changeSped(isIncrement: Boolean) {
