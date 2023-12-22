@@ -28,6 +28,7 @@ import com.hardik.videoplayerbase.databinding.ActivityPlayerBinding
 import com.hardik.videoplayerbase.databinding.BoosterBinding
 import com.hardik.videoplayerbase.databinding.MoreFeaturesBinding
 import com.hardik.videoplayerbase.databinding.SpeedDialogBinding
+import java.text.DecimalFormat
 import java.util.Locale
 
 class PlayerActivity : AppCompatActivity() {
@@ -35,46 +36,51 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var runnable: Runnable
     private var isSubtitle: Boolean = true
 
-    companion object{
-        private lateinit var player : SimpleExoPlayer
+    companion object {
+        private lateinit var player: SimpleExoPlayer
         lateinit var playerList: ArrayList<Video>
         var position: Int = -1
-        var repeat:Boolean = false
+        var repeat: Boolean = false
         private var isFullscreen: Boolean = false
         private var isLocked: Boolean = false
+
         @SuppressLint("StaticFieldLeak")
         private lateinit var trackSelector: DefaultTrackSelector
         private lateinit var loudnessEnhancer: LoudnessEnhancer
+        private var speed: Float = 1.0f
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //hide top title bar
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         //for knock display
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            window.attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            window.attributes.layoutInDisplayCutoutMode =
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setTheme(R.style.playerActivityTheme)
         setContentView(binding.root)
         // for immersive mode (fullscreen mode) this for bottom button of android
-        WindowCompat.setDecorFitsSystemWindows(window,false)
-        WindowInsetsControllerCompat(window,binding.root).let { controller ->
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowInsetsControllerCompat(window, binding.root).let { controller ->
             controller.hide(WindowInsetsCompat.Type.systemBars())
-            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            controller.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
         initializeLayout()
         initializeBinding()
     }
 
-    private fun initializeLayout(){
-        when(intent.getStringExtra("class")){
-            "AllVideos" ->{
+    private fun initializeLayout() {
+        when (intent.getStringExtra("class")) {
+            "AllVideos" -> {
                 playerList = ArrayList()
                 playerList.addAll(MainActivity.videoList)
                 createPlayer()
             }
-            "FolderActivity" ->{
+            "FolderActivity" -> {
                 playerList = ArrayList()
                 playerList.addAll(FoldersActivity.currentFolderVideo)
                 createPlayer()
@@ -85,46 +91,46 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun initializeBinding(){
-        binding.backBtn.setOnClickListener{
+    private fun initializeBinding() {
+        binding.backBtn.setOnClickListener {
             finish()//when click this button activity close
         }
-        binding.playPauseBtn.setOnClickListener{
+        binding.playPauseBtn.setOnClickListener {
             //if player is playing so pause either play
             if (player.isPlaying) pauseVideo()
             else playVideo()
         }
-        binding.nextBtn.setOnClickListener{ nextPrevVideo() }
-        binding.prevBtn.setOnClickListener{ nextPrevVideo(isNext = false) }
+        binding.nextBtn.setOnClickListener { nextPrevVideo() }
+        binding.prevBtn.setOnClickListener { nextPrevVideo(isNext = false) }
         binding.repeatBtn.setOnClickListener {
-            if (repeat){
+            if (repeat) {
                 repeat = false
                 player.repeatMode = Player.REPEAT_MODE_OFF
                 binding.repeatBtn.setImageResource(R.drawable.repeat_icon_off)
-            }else{
+            } else {
                 repeat = true
                 player.repeatMode = Player.REPEAT_MODE_ONE
                 binding.repeatBtn.setImageResource(R.drawable.repeat_icon_one)
             }
         }
         binding.fullScreenBtn.setOnClickListener {
-            if (isFullscreen){
+            if (isFullscreen) {
                 isFullscreen = false
                 playInFullscreen(enable = false)
-            }else{
+            } else {
                 isFullscreen = true
                 playInFullscreen(enable = true)
             }
         }
 
         binding.lockButton.setOnClickListener {
-            if(!isLocked){
+            if (!isLocked) {
                 //for hide control
                 isLocked = true
                 binding.playerView.hideController()
                 binding.playerView.useController = false
                 binding.lockButton.setImageResource(R.drawable.lock_close_icon)
-            }else{
+            } else {
                 //for show control
                 isLocked = false
                 binding.playerView.useController = true
@@ -136,7 +142,8 @@ class PlayerActivity : AppCompatActivity() {
 
         binding.moreFeatures.setOnClickListener {
             pauseVideo()//first pause video
-            val customDialog = LayoutInflater.from(this).inflate(R.layout.more_features,binding.root,false)
+            val customDialog =
+                LayoutInflater.from(this).inflate(R.layout.more_features, binding.root, false)
             val bindingMF = MoreFeaturesBinding.bind(customDialog)
             val dialog = MaterialAlertDialogBuilder(this).setView(customDialog)
                 .setOnCancelListener { playVideo() }
@@ -145,26 +152,35 @@ class PlayerActivity : AppCompatActivity() {
             dialog.show()
 
             //for audio Track
-            bindingMF.audioTrack.setOnClickListener{
+            bindingMF.audioTrack.setOnClickListener {
                 dialog.dismiss()
                 playVideo()
 
                 val audioTrack = ArrayList<String>()
-                 for (i in 0 until player.currentTrackGroups.length){
-                      if (player.currentTrackGroups.get(i).getFormat(0).selectionFlags == C.SELECTION_FLAG_DEFAULT){//if that track is selectable so select it.
-                          audioTrack.add(Locale(player.currentTrackGroups.get(i).getFormat(0).language.toString()).displayLanguage)//Locale is short form to long form convert
-                      }
-                 }
-                val tempTracks = audioTrack.toArray(arrayOfNulls<CharSequence>(audioTrack.size))//convert arrayList to CharSequence
-                MaterialAlertDialogBuilder(this,R.style.alertDialog)
+                for (i in 0 until player.currentTrackGroups.length) {
+                    if (player.currentTrackGroups.get(i)
+                            .getFormat(0).selectionFlags == C.SELECTION_FLAG_DEFAULT
+                    ) {//if that track is selectable so select it.
+                        audioTrack.add(
+                            Locale(
+                                player.currentTrackGroups.get(i).getFormat(0).language.toString()
+                            ).displayLanguage
+                        )//Locale is short form to long form convert
+                    }
+                }
+                val tempTracks =
+                    audioTrack.toArray(arrayOfNulls<CharSequence>(audioTrack.size))//convert arrayList to CharSequence
+                MaterialAlertDialogBuilder(this, R.style.alertDialog)
                     .setTitle("Select Language")
                     .setOnCancelListener { playVideo() }
                     .setBackground(ColorDrawable(0x803700B3.toInt()))
-                    .setItems(tempTracks){_, position ->
-                        Toast.makeText(this,audioTrack[position]+ " selected", Toast.LENGTH_SHORT).show()
+                    .setItems(tempTracks) { _, position ->
+                        Toast.makeText(this, audioTrack[position] + " selected", Toast.LENGTH_SHORT)
+                            .show()
 //                        trackSelector.setParameters(trackSelector.buildUponParameters().setPreferredAudioLanguage(audioTrack[position]))// change audio track on video
                         // To switch audio track
-                        val parameters = trackSelector.buildUponParameters().setPreferredAudioLanguage(audioTrack[position])
+                        val parameters = trackSelector.buildUponParameters()
+                            .setPreferredAudioLanguage(audioTrack[position])
                         trackSelector.setParameters(parameters)
 
                     }
@@ -172,71 +188,86 @@ class PlayerActivity : AppCompatActivity() {
                     .show()
             }
 
-            bindingMF.subtitlesBtn.setOnClickListener{
-                if (isSubtitle){
+            bindingMF.subtitlesBtn.setOnClickListener {
+                if (isSubtitle) {
                     //is on
-                    trackSelector.parameters = DefaultTrackSelector.ParametersBuilder(this).setRendererDisabled(
-                        C.TRACK_TYPE_VIDEO,true
-                    ).build()
-                    Toast.makeText(this,"Subtitles Off", Toast.LENGTH_SHORT).show()
+                    trackSelector.parameters =
+                        DefaultTrackSelector.ParametersBuilder(this).setRendererDisabled(
+                            C.TRACK_TYPE_VIDEO, true
+                        ).build()
+                    Toast.makeText(this, "Subtitles Off", Toast.LENGTH_SHORT).show()
                     isSubtitle = false
-                }
-                else{
+                } else {
                     //is off
-                    trackSelector.parameters = DefaultTrackSelector.ParametersBuilder(this).setRendererDisabled(
-                        C.TRACK_TYPE_VIDEO,false
-                    ).build()
-                    Toast.makeText(this,"Subtitles On", Toast.LENGTH_SHORT).show()
+                    trackSelector.parameters =
+                        DefaultTrackSelector.ParametersBuilder(this).setRendererDisabled(
+                            C.TRACK_TYPE_VIDEO, false
+                        ).build()
+                    Toast.makeText(this, "Subtitles On", Toast.LENGTH_SHORT).show()
                     isSubtitle = true
                 }
                 dialog.dismiss()
                 playVideo()
             }
 
-            bindingMF.audioBooster.setOnClickListener{
+            bindingMF.audioBooster.setOnClickListener {
                 dialog.dismiss()
-                val customDialogB = LayoutInflater.from(this).inflate(R.layout.booster,binding.root,false)
+                val customDialogB =
+                    LayoutInflater.from(this).inflate(R.layout.booster, binding.root, false)
                 val bindingB = BoosterBinding.bind(customDialog)
                 val dialogB = MaterialAlertDialogBuilder(this).setView(customDialogB)
                     .setOnCancelListener { playVideo() }
-                    .setPositiveButton("OK"){self,_ ->
+                    .setPositiveButton("OK") { self, _ ->
                         loudnessEnhancer.setTargetGain(bindingB.verticalBar.progress * 100)
                         playVideo()
                         self.dismiss()
                     }
                     .setBackground(ColorDrawable(0x803700B3.toInt()))
                     .create()
-                bindingB.verticalBar.progress = loudnessEnhancer.targetGain.toInt()/100
-                bindingB.progressText.text = "Audio Booster\n\n ${loudnessEnhancer.targetGain.toInt()/10}%"
+                bindingB.verticalBar.progress = loudnessEnhancer.targetGain.toInt() / 100
+                bindingB.progressText.text =
+                    "Audio Booster\n\n ${loudnessEnhancer.targetGain.toInt() / 10}%"
                 bindingB.verticalBar.setOnProgressChangeListener {
-                    bindingB.progressText.text = "Audio Booster\n\n ${it*10}%"
+                    bindingB.progressText.text = "Audio Booster\n\n ${it * 10}%"
                 }
                 dialogB.show()
             }
 
-            bindingMF.speedBtn.setOnClickListener{
+            bindingMF.speedBtn.setOnClickListener {
                 dialog.dismiss()
-                val customDialogS = LayoutInflater.from(this).inflate(R.layout.speed_dialog,binding.root,false)
+                playVideo()
+                val customDialogS =
+                    LayoutInflater.from(this).inflate(R.layout.speed_dialog, binding.root, false)
                 val bindingS = SpeedDialogBinding.bind(customDialogS)
                 val dialogS = MaterialAlertDialogBuilder(this).setView(customDialogS)
                     .setCancelable(false)
-                    .setPositiveButton("OK"){self,_ ->
-                        playVideo()
+                    .setPositiveButton("OK") { self, _ ->
                         self.dismiss()
                     }
                     .setBackground(ColorDrawable(0x803700B3.toInt()))
                     .create()
                 dialogS.show()
+                bindingS.speedTxt.text = "${DecimalFormat("#.##").format(speed)} X"
+                bindingS.minusBtn.setOnClickListener {
+                    changeSped(isIncrement = false)
+                    bindingS.speedTxt.text = "${DecimalFormat("#.##").format(speed)} X"
+                }
+                bindingS.plusBtn.setOnClickListener {
+                    changeSped(isIncrement = true)
+                    bindingS.speedTxt.text = "${DecimalFormat("#.##").format(speed)} X"
+                }
             }
         }
     }
 
-    private fun createPlayer(){
+    private fun createPlayer() {
         try {
             player.release()//for release all old resource in side stored
-        }catch (e:Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
+        //initialize speed again
+        speed = 1.0f
         //initialize trackSelector
         trackSelector = DefaultTrackSelector(this)
 
@@ -252,10 +283,10 @@ class PlayerActivity : AppCompatActivity() {
         playVideo()
 
         //add completion listener
-        player.addListener(object : Player.Listener{
+        player.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
                 super.onPlaybackStateChanged(playbackState)
-                if (playbackState == Player.STATE_ENDED){//when video finish
+                if (playbackState == Player.STATE_ENDED) {//when video finish
                     nextPrevVideo()
                 }
             }
@@ -271,41 +302,42 @@ class PlayerActivity : AppCompatActivity() {
 
     }
 
-    private fun playVideo(){
+    private fun playVideo() {
         binding.playPauseBtn.setImageResource(R.drawable.pause_icon)
         player.play()
     }
 
-    private fun pauseVideo(){
+    private fun pauseVideo() {
         binding.playPauseBtn.setImageResource(R.drawable.play_icon)
         player.pause()
     }
 
-    private fun nextPrevVideo(isNext:Boolean = true){
+    private fun nextPrevVideo(isNext: Boolean = true) {
         if (isNext) setPosition()
         else setPosition(isIncrement = false)
         createPlayer()
     }
 
-    private fun setPosition(isIncrement:Boolean = true){
-        if (!repeat){
-            if (isIncrement){
-                if (playerList.size -1 == position) position = 0 //if list size is last item so set 0 index
+    private fun setPosition(isIncrement: Boolean = true) {
+        if (!repeat) {
+            if (isIncrement) {
+                if (playerList.size - 1 == position) position =
+                    0 //if list size is last item so set 0 index
                 else ++position
-            }else{
+            } else {
                 if (position == 0)
-                    position = playerList.size -1 //set last position of list
+                    position = playerList.size - 1 //set last position of list
                 else --position
             }
         }
     }
 
-    private fun playInFullscreen(enable : Boolean){
-        if(enable){
+    private fun playInFullscreen(enable: Boolean) {
+        if (enable) {
             binding.playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
             player.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
             binding.fullScreenBtn.setImageResource(R.drawable.fullscreen_exit_icon)
-        }else{
+        } else {
 
             binding.playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
             player.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
@@ -313,16 +345,16 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun setVisibility(){
+    private fun setVisibility() {
         runnable = Runnable {
             if (binding.playerView.isControllerVisible) changeVisibility(View.VISIBLE)
             else changeVisibility(View.INVISIBLE)
-            Handler(Looper.getMainLooper()).postDelayed(runnable,200)
+            Handler(Looper.getMainLooper()).postDelayed(runnable, 200)
         }
-        Handler(Looper.getMainLooper()).postDelayed(runnable,0)
+        Handler(Looper.getMainLooper()).postDelayed(runnable, 0)
     }
 
-    private fun changeVisibility(visibility: Int){
+    private fun changeVisibility(visibility: Int) {
         binding.topController.visibility = visibility
         binding.bottomController.visibility = visibility
         binding.playPauseBtn.visibility = visibility
@@ -331,6 +363,19 @@ class PlayerActivity : AppCompatActivity() {
         if (isLocked) binding.lockButton.visibility = View.VISIBLE
         // when lock is open that time it's work
         else binding.lockButton.visibility = visibility
+    }
+
+    private fun changeSped(isIncrement: Boolean) {
+        if (isIncrement) {
+            if (speed <= 2.9f) {
+                speed += 0.10f
+            }
+        } else {
+            if (speed > 0.20f) {
+                speed -= 0.10f
+            }
+        }
+        player.setPlaybackSpeed(speed)
     }
 
     override fun onDestroy() {
