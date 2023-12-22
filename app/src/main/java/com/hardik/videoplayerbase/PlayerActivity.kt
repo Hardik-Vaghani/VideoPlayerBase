@@ -46,6 +46,7 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPlayerBinding
     private lateinit var runnable: Runnable
     private var isSubtitle: Boolean = true
+    private var moreTime: Int = 0
 
     companion object {
         private lateinit var player: SimpleExoPlayer
@@ -89,6 +90,7 @@ class PlayerActivity : AppCompatActivity() {
                 binding.playerView.showController()
                 binding.forwardBtn.visibility = View.VISIBLE
                 player.seekTo(player.currentPosition + 10000L)
+                moreTime = 0
             }
 
         }))
@@ -97,6 +99,7 @@ class PlayerActivity : AppCompatActivity() {
                 binding.playerView.showController()
                 binding.rewindBtn.visibility = View.VISIBLE
                 player.seekTo(player.currentPosition - 10000L)
+                moreTime = 0
             }
 
         }))
@@ -461,8 +464,14 @@ class PlayerActivity : AppCompatActivity() {
         // when lock is open that time it's work
         else binding.lockButton.visibility = visibility
 
-        binding.rewindBtn.visibility = View.GONE
-        binding.forwardBtn.visibility = View.GONE
+        if (moreTime == 2){
+            binding.rewindBtn.visibility = View.GONE
+            binding.forwardBtn.visibility = View.GONE
+        }else ++moreTime
+
+        //for lock screen function stop
+        binding.forwardFL.visibility = visibility
+        binding.rewindFL.visibility = visibility
     }
 
     private fun changeSped(isIncrement: Boolean) {
