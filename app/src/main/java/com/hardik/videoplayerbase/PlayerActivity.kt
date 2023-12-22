@@ -10,7 +10,6 @@ import android.content.res.Configuration
 import android.graphics.drawable.ColorDrawable
 import android.media.audiofx.LoudnessEnhancer
 import android.net.Uri
-import android.opengl.Visibility
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -21,14 +20,13 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -49,7 +47,7 @@ class PlayerActivity : AppCompatActivity() {
     private var moreTime: Int = 0
 
     companion object {
-        private lateinit var player: SimpleExoPlayer
+        private lateinit var player: ExoPlayer
         lateinit var playerList: ArrayList<Video>
         var position: Int = -1
         var repeat: Boolean = false
@@ -177,7 +175,8 @@ class PlayerActivity : AppCompatActivity() {
             val customDialog =
                 LayoutInflater.from(this).inflate(R.layout.more_features, binding.root, false)
             val bindingMF = MoreFeaturesBinding.bind(customDialog)
-            val dialog = MaterialAlertDialogBuilder(this).setView(customDialog)
+            val dialog = MaterialAlertDialogBuilder(this)
+                .setView(customDialog)
                 .setOnCancelListener { playVideo() }
                 .setBackground(ColorDrawable(0x803700B3.toInt()))
                 .create()
@@ -373,7 +372,7 @@ class PlayerActivity : AppCompatActivity() {
 
         binding.videoTitle.text = playerList[position].title
         binding.videoTitle.isSelected = true
-        player = SimpleExoPlayer.Builder(this)
+        player = ExoPlayer.Builder(this)
             .setTrackSelector(trackSelector)
             .build()
         binding.playerView.player = player

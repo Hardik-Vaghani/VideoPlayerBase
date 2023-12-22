@@ -25,6 +25,7 @@
             android:launchMode="singleTask"
             android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
             tools:targetApi="n"
+            android:theme="@style/playerActivityTheme"
             tools:ignore="ObsoleteSdkInt">
             <meta-data
                 android:name="android.app.lib_name"
