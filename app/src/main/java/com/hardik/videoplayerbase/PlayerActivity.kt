@@ -1,8 +1,13 @@
 package com.hardik.videoplayerbase
 
 import android.annotation.SuppressLint
+import android.app.AppOpsManager
+import android.app.PictureInPictureParams
+import android.content.Context
+import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.media.audiofx.LoudnessEnhancer
+import android.net.Uri
 import android.opengl.Visibility
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -94,7 +99,7 @@ class PlayerActivity : AppCompatActivity() {
         else binding.repeatBtn.setImageResource(R.drawable.repeat_icon_all)
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n", "ObsoleteSdkInt")
     private fun initializeBinding() {
         binding.backBtn.setOnClickListener {
             finish()//when click this button activity close
@@ -296,6 +301,36 @@ class PlayerActivity : AppCompatActivity() {
                         if (sleepTime < 120)sleepTime += 15
                         bindingS.speedTxt.text = "$sleepTime Min"
                     }
+                }
+            }
+
+            bindingMF.pipModeBtn.setOnClickListener{
+                val appOps = getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+                val status = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                    appOps.checkOpNoThrow(AppOpsManager.OPSTR_PICTURE_IN_PICTURE,android.os.Process.myUid(),packageName) == AppOpsManager.MODE_ALLOWED
+                }else{
+                    false
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                    //when permission is granted
+                    if (status) {
+                        this.enterPictureInPictureMode(PictureInPictureParams.Builder().build())
+                        dialog.dismiss()
+                        binding.playerView.hideController()
+                        playVideo()
+                    }
+                    else {
+    //                    when permission isn't granted, so requesting for permission
+                            val intent = Intent(
+                                "android.settings.PICTURE_IN_PICTURE_SETTINGS",
+                                Uri.parse("package:${packageName}")
+                            )
+                            startActivity(intent)
+                    }
+                }else{
+                    Toast.makeText(this,"Feature not supported!!",Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
+                    playVideo()
                 }
             }
         }
