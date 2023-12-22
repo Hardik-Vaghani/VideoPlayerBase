@@ -2,6 +2,7 @@ package com.hardik.videoplayerbase
 
 import android.annotation.SuppressLint
 import android.graphics.drawable.ColorDrawable
+import android.media.audiofx.LoudnessEnhancer
 import android.opengl.Visibility
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -24,7 +25,9 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.hardik.videoplayerbase.databinding.ActivityPlayerBinding
+import com.hardik.videoplayerbase.databinding.BoosterBinding
 import com.hardik.videoplayerbase.databinding.MoreFeaturesBinding
+import com.hardik.videoplayerbase.databinding.SpeedDialogBinding
 import java.util.Locale
 
 class PlayerActivity : AppCompatActivity() {
@@ -40,7 +43,8 @@ class PlayerActivity : AppCompatActivity() {
         private var isFullscreen: Boolean = false
         private var isLocked: Boolean = false
         @SuppressLint("StaticFieldLeak")
-        lateinit var trackSelector: DefaultTrackSelector
+        private lateinit var trackSelector: DefaultTrackSelector
+        private lateinit var loudnessEnhancer: LoudnessEnhancer
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,6 +84,7 @@ class PlayerActivity : AppCompatActivity() {
         else binding.repeatBtn.setImageResource(R.drawable.repeat_icon_all)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun initializeBinding(){
         binding.backBtn.setOnClickListener{
             finish()//when click this button activity close
@@ -148,7 +153,6 @@ class PlayerActivity : AppCompatActivity() {
                  for (i in 0 until player.currentTrackGroups.length){
                       if (player.currentTrackGroups.get(i).getFormat(0).selectionFlags == C.SELECTION_FLAG_DEFAULT){//if that track is selectable so select it.
                           audioTrack.add(Locale(player.currentTrackGroups.get(i).getFormat(0).language.toString()).displayLanguage)//Locale is short form to long form convert
-
                       }
                  }
                 val tempTracks = audioTrack.toArray(arrayOfNulls<CharSequence>(audioTrack.size))//convert arrayList to CharSequence
@@ -158,7 +162,11 @@ class PlayerActivity : AppCompatActivity() {
                     .setBackground(ColorDrawable(0x803700B3.toInt()))
                     .setItems(tempTracks){_, position ->
                         Toast.makeText(this,audioTrack[position]+ " selected", Toast.LENGTH_SHORT).show()
-                        trackSelector.setParameters(trackSelector.buildUponParameters().setPreferredAudioLanguage(audioTrack[position]))// change audio track on video
+//                        trackSelector.setParameters(trackSelector.buildUponParameters().setPreferredAudioLanguage(audioTrack[position]))// change audio track on video
+                        // To switch audio track
+                        val parameters = trackSelector.buildUponParameters().setPreferredAudioLanguage(audioTrack[position])
+                        trackSelector.setParameters(parameters)
+
                     }
                     .create()
                     .show()
@@ -184,6 +192,42 @@ class PlayerActivity : AppCompatActivity() {
                 dialog.dismiss()
                 playVideo()
             }
+
+            bindingMF.audioBooster.setOnClickListener{
+                dialog.dismiss()
+                val customDialogB = LayoutInflater.from(this).inflate(R.layout.booster,binding.root,false)
+                val bindingB = BoosterBinding.bind(customDialog)
+                val dialogB = MaterialAlertDialogBuilder(this).setView(customDialogB)
+                    .setOnCancelListener { playVideo() }
+                    .setPositiveButton("OK"){self,_ ->
+                        loudnessEnhancer.setTargetGain(bindingB.verticalBar.progress * 100)
+                        playVideo()
+                        self.dismiss()
+                    }
+                    .setBackground(ColorDrawable(0x803700B3.toInt()))
+                    .create()
+                bindingB.verticalBar.progress = loudnessEnhancer.targetGain.toInt()/100
+                bindingB.progressText.text = "Audio Booster\n\n ${loudnessEnhancer.targetGain.toInt()/10}%"
+                bindingB.verticalBar.setOnProgressChangeListener {
+                    bindingB.progressText.text = "Audio Booster\n\n ${it*10}%"
+                }
+                dialogB.show()
+            }
+
+            bindingMF.speedBtn.setOnClickListener{
+                dialog.dismiss()
+                val customDialogS = LayoutInflater.from(this).inflate(R.layout.speed_dialog,binding.root,false)
+                val bindingS = SpeedDialogBinding.bind(customDialogS)
+                val dialogS = MaterialAlertDialogBuilder(this).setView(customDialogS)
+                    .setCancelable(false)
+                    .setPositiveButton("OK"){self,_ ->
+                        playVideo()
+                        self.dismiss()
+                    }
+                    .setBackground(ColorDrawable(0x803700B3.toInt()))
+                    .create()
+                dialogS.show()
+            }
         }
     }
 
@@ -193,10 +237,14 @@ class PlayerActivity : AppCompatActivity() {
         }catch (e:Exception){
             e.printStackTrace()
         }
+        //initialize trackSelector
         trackSelector = DefaultTrackSelector(this)
+
         binding.videoTitle.text = playerList[position].title
         binding.videoTitle.isSelected = true
-        player = SimpleExoPlayer.Builder(this).setTrackSelector(trackSelector).build()
+        player = SimpleExoPlayer.Builder(this)
+            .setTrackSelector(trackSelector)
+            .build()
         binding.playerView.player = player
         val mediaItem = MediaItem.fromUri(playerList[position].artUri)//directly play
         player.setMediaItem(mediaItem)
@@ -216,6 +264,11 @@ class PlayerActivity : AppCompatActivity() {
         playInFullscreen(enable = isFullscreen)//when value is contain isFullscreen val,that is set.
 
         setVisibility()
+
+        //initialize loudnessEnhancer
+        loudnessEnhancer = LoudnessEnhancer(player.audioSessionId)
+        loudnessEnhancer.enabled = true
+
     }
 
     private fun playVideo(){

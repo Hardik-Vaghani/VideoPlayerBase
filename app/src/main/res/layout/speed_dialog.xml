@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_weight="1"
+        android:background="?actionBarItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/minus_icon"
+        android:tint="@color/white" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="@string/speed"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_weight="1"
+        android:background="?actionBarItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/plus_icon"
+        android:tint="@color/white" />
+</androidx.appcompat.widget.LinearLayoutCompat>
