@@ -1,11 +1,13 @@
 package com.hardik.videoplayerbase
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.SearchView.OnQueryTextListener
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.LayoutManager
@@ -13,6 +15,7 @@ import com.hardik.videoplayerbase.databinding.FragmentVideosBinding
 
 class VideosFragment : Fragment() {
 
+    private lateinit var binding: FragmentVideosBinding
     private lateinit var adapter: VideoAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,7 +25,7 @@ class VideosFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_videos, container, false)
-        val binding = FragmentVideosBinding.bind(view)
+        binding = FragmentVideosBinding.bind(view)
         binding.videoRV.setHasFixedSize(true)
         binding.videoRV.setItemViewCacheSize(10)
         binding.videoRV.layoutManager = LinearLayoutManager(requireContext())
@@ -33,6 +36,11 @@ class VideosFragment : Fragment() {
             binding.totalVideos.text = "Total Videos: ${MainActivity.videoList.size}"
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+        binding.nowPlayingBtn.setOnClickListener{
+            val intent = Intent(requireContext(),PlayerActivity::class.java)
+            intent.putExtra("class","NowPlaying")//intent passing
+            startActivity(intent)
         }
         return view
     }
@@ -61,4 +69,8 @@ class VideosFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (PlayerActivity.position != -1)binding.nowPlayingBtn.visibility = View.VISIBLE
+    }
 }

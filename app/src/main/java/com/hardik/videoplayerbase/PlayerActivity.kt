@@ -120,6 +120,16 @@ class PlayerActivity : AppCompatActivity() {
                 playerList.addAll(MainActivity.searchList)
                 createPlayer()
             }
+            "NowPlaying" ->{
+                //initialize speed again
+                speed = 1.0f
+                binding.videoTitle.text = playerList[position].title
+                binding.videoTitle.isSelected = true
+                binding.playerView.player = player
+                playVideo()
+                playInFullscreen(enable = isFullscreen)
+                setVisibility()
+            }
         }
         if (repeat) binding.repeatBtn.setImageResource(R.drawable.repeat_icon_one)
         else binding.repeatBtn.setImageResource(R.drawable.repeat_icon_all)
@@ -507,6 +517,7 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        player.release()
+//        player.release()
+        player.pause()
     }
 }
