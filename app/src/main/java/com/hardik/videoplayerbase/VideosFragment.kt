@@ -13,6 +13,7 @@ import com.hardik.videoplayerbase.databinding.FragmentVideosBinding
 
 class VideosFragment : Fragment() {
 
+    private lateinit var adapter: VideoAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -26,7 +27,9 @@ class VideosFragment : Fragment() {
         binding.videoRV.setItemViewCacheSize(10)
         binding.videoRV.layoutManager = LinearLayoutManager(requireContext())
         try {
-            binding.videoRV.adapter = VideoAdapter(requireContext(), MainActivity.videoList)
+            // initialize adapter
+            adapter = VideoAdapter(requireContext(), MainActivity.videoList)
+            binding.videoRV.adapter = adapter
             binding.totalVideos.text = "Total Videos: ${MainActivity.videoList.size}"
         } catch (e: Exception) {
             e.printStackTrace()
@@ -42,7 +45,15 @@ class VideosFragment : Fragment() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 if (newText != null){
-                    Toast.makeText(requireContext(),"new Text$newText",Toast.LENGTH_SHORT).show()
+                    //every time initialize searchList
+                    MainActivity.searchList = ArrayList()
+                    for (video in MainActivity.videoList){
+                        if (video.title.lowercase().contains(newText.lowercase())){
+                            MainActivity.searchList.add(video)
+                        }
+                    }
+                    MainActivity.search = true
+                    adapter.updateList(searchList = MainActivity.searchList)
                 }
                 return true
             }

@@ -115,6 +115,11 @@ class PlayerActivity : AppCompatActivity() {
                 playerList.addAll(FoldersActivity.currentFolderVideo)
                 createPlayer()
             }
+            "SearchedVideos" -> {
+                playerList = ArrayList()
+                playerList.addAll(MainActivity.searchList)
+                createPlayer()
+            }
         }
         if (repeat) binding.repeatBtn.setImageResource(R.drawable.repeat_icon_one)
         else binding.repeatBtn.setImageResource(R.drawable.repeat_icon_all)
@@ -493,7 +498,8 @@ class PlayerActivity : AppCompatActivity() {
             val intent = Intent(this,PlayerActivity::class.java)
             when(pipStatus){
                 1 -> intent.putExtra("class","FolderActivity")//intent get from the videoAdapter
-                2 -> intent.putExtra("class","AllVideos")//intent get from the videoAdapter
+                2 -> intent.putExtra("class","SearchedVideos")//intent get from the videoAdapter
+                3 -> intent.putExtra("class","AllVideos")//intent get from the videoAdapter
             }
             startActivity(intent)
         }
