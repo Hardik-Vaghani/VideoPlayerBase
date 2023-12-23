@@ -60,6 +60,7 @@ class PlayerActivity : AppCompatActivity() {
         private var speed: Float = 1.0f
         private var timer:Timer? = null
         var pipStatus:Int = 0
+        var nowPlayingId: String = ""
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -414,6 +415,8 @@ class PlayerActivity : AppCompatActivity() {
         loudnessEnhancer = LoudnessEnhancer(player.audioSessionId)
         loudnessEnhancer.enabled = true
 
+        //initialize and store id. for when again play same video
+        nowPlayingId = playerList[position].id
     }
 
     private fun playVideo() {
