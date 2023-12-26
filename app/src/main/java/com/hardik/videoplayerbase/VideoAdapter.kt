@@ -9,10 +9,16 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.hardik.videoplayerbase.databinding.VideoMoreFeaturesBinding
 import com.hardik.videoplayerbase.databinding.VideoViewBinding
 
 class VideoAdapter(private val context: Context, private var videoList: ArrayList<Video>, private val isFolder:Boolean = false) :
     RecyclerView.Adapter<VideoAdapter.MyHolder>() {
+
+    private var newPosition = 0
+//    private lateinit var dialogRF: androidx.appcompat.app.AlertDialog
+
     class MyHolder(binding: VideoViewBinding) : RecyclerView.ViewHolder(binding.root) {
         val title = binding.videoName
         val folder = binding.folderName
@@ -25,7 +31,7 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
         return MyHolder(VideoViewBinding.inflate(LayoutInflater.from(context),parent,false))
     }
 
-    override fun onBindViewHolder(holder: MyHolder, position: Int) {
+    override fun onBindViewHolder(holder: MyHolder, @SuppressLint("RecyclerView") position: Int) {
         holder.title.text = videoList[position].title
         holder.folder.text = videoList[position].folderName
         holder.duration.text = DateUtils.formatElapsedTime(videoList[position].duration/1000)
@@ -54,6 +60,22 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
                     sendIntent(pos = position, ref = "AllVideos")
                 }
             }
+        }
+        holder.root.setOnLongClickListener {
+            newPosition = position
+
+            val customDialog = LayoutInflater.from(context).inflate(R.layout.video_more_features, holder.root, false)
+            val bindingVMF = VideoMoreFeaturesBinding.bind(customDialog)
+            val dialog = MaterialAlertDialogBuilder(context).setView(customDialog)
+//                .setBackground(ColorDrawable(0x22334455.toInt()))
+                .create()
+            dialog.show()
+
+            bindingVMF.renameBtn.setOnClickListener {
+                dialog.dismiss()
+//                requestWriteR()
+            }
+            return@setOnLongClickListener true
         }
     }
 
