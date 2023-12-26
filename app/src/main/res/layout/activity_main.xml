@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:backgroundTint="@color/white"
-            app:itemIconTint="@color/cool_pink"
+            app:itemIconTint="?attr/themeColor"
             app:itemTextAppearanceActive="@color/black"
             app:itemTextAppearanceInactive="@android:color/darker_gray"
             app:itemTextColor="@color/black"
@@ -40,7 +40,7 @@
         android:background="@color/white"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header"
-        app:itemIconTint="@color/cool_pink"
+        app:itemIconTint="?attr/themeColor"
         app:itemTextColor="@color/black"
         app:menu="@menu/nav_menu" />
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -18,15 +18,25 @@
         android:theme="@style/Theme.VideoPlayerBase"
         tools:targetApi="31">
         <activity
-            android:name=".PlayerActivity"
+            android:name=".AboutActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/coolPinkNav"
+            tools:ignore="LockedOrientationActivity">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".PlayerActivity"
+            android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+            android:exported="false"
+            android:launchMode="singleTask"
             android:resizeableActivity="true"
             android:supportsPictureInPicture="true"
-            android:launchMode="singleTask"
-            android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
-            tools:targetApi="n"
             android:theme="@style/playerActivityTheme"
-            tools:ignore="ObsoleteSdkInt">
+            tools:ignore="ObsoleteSdkInt"
+            tools:targetApi="n">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />

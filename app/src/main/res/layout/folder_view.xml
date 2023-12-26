@@ -16,7 +16,7 @@
         android:contentDescription="@string/image"
         android:scaleType="centerCrop"
         android:src="@drawable/folder_icon"
-        android:tint="@color/cool_pink" />
+        android:tint="?attr/themeColor" />
 
     <TextView
         android:id="@+id/folderNameFV"

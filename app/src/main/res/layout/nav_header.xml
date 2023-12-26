@@ -2,15 +2,17 @@
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="170dp"
-    android:layout_marginTop="70dp"
-    android:background="@color/cool_pink"
+    android:layout_marginTop="85dp"
+    android:background="?attr/themeColor"
     android:orientation="vertical"
+    android:gravity="center_vertical"
     android:padding="16dp">
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/app_name"
+        android:background="?attr/themeColor"
         android:src="@mipmap/ic_video_player" />
 
     <TextView

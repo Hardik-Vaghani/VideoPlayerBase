@@ -18,7 +18,7 @@ class FoldersActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme(R.style.coolPinkNav)
+        setTheme(MainActivity.themesList[MainActivity.themeIndex])
 //        setContentView(R.layout.activity_folders)
         val binding = ActivityFoldersBinding.inflate(layoutInflater)
         setContentView(binding.root)
