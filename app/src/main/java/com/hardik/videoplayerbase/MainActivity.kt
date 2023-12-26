@@ -15,6 +15,7 @@ import android.view.MenuItem
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
@@ -37,6 +38,15 @@ class MainActivity : AppCompatActivity() {
         val themesList = arrayOf(
             R.style.coolPinkNav, R.style.coolBlueNav, R.style.coolPurpleNav, R.style.coolGreenNav,
             R.style.coolRedNav, R.style.coolBlackNav
+        )
+        var sortValue: Int = 0
+        val sortList = arrayOf(
+            MediaStore.Video.Media.DATE_ADDED + " DESC",
+            MediaStore.Video.Media.DATE_ADDED,
+            MediaStore.Video.Media.TITLE,
+            MediaStore.Video.Media.TITLE + " DESC",
+            MediaStore.Video.Media.SIZE,
+            MediaStore.Video.Media.SIZE + " DESC"
         )
     }
 
@@ -92,7 +102,34 @@ class MainActivity : AppCompatActivity() {
                     bindingTV.themeRed.setOnClickListener { saveTheme(4) }
                     bindingTV.themeBlack.setOnClickListener { saveTheme(5) }
                 }
-                R.id.sortOrderNav -> Toast.makeText(this, "Sort Order", Toast.LENGTH_SHORT).show()
+                R.id.sortOrderNav -> {
+                    val menuItems = arrayOf(
+                        "Latest",
+                        "Oldest",
+                        "Name(A to Z)",
+                        "Name(Z to A)",
+                        "File Size(Smallest)",
+                        "File Size(Largest)"
+                    )
+                    var value = sortValue
+                    val dialog = MaterialAlertDialogBuilder(this)
+                        .setTitle("Sort By")
+                        .setPositiveButton("OK") { _, _ ->
+                            val sortEditor = getSharedPreferences("Sorting", MODE_PRIVATE).edit()
+                            sortEditor.putInt("sortValue", value)
+                            sortEditor.apply()
+
+                            //for restarting app
+                            finish()
+                            startActivity(intent)
+                        }
+                        .setSingleChoiceItems(menuItems, sortValue) { _, pos ->
+                            value = pos
+                        }
+                        .create()
+                    dialog.show()
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setBackgroundColor(Color.RED)
+                }
                 R.id.aboutNav -> startActivity(Intent(this,AboutActivity::class.java))
                 R.id.exitNav -> exitProcess(1)//close app, parameter value doesn't matter
 
@@ -159,6 +196,9 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("InLinedApi", "Recycle", "Range")
     private fun getAllVideos(): ArrayList<Video> {
+        val sortEditor = getSharedPreferences("Sorting",  MODE_PRIVATE)
+        sortValue = sortEditor.getInt("sortValue", 0)
+
         var tempList = ArrayList<Video>()
         var tempFolderList = ArrayList<String>()
         //which type data do you want mention here
@@ -175,7 +215,7 @@ class MainActivity : AppCompatActivity() {
         //request to cursor i want to data when "MediaStore.Video.Media.EXTERNAL_CONTENT_URI" and which type of "projection" and set Order "DESC"
         val cursor = this.contentResolver.query(
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI, projection, null, null,
-            MediaStore.Video.Media.DATE_ADDED + " DESC"
+            sortList[sortValue]
         )
 
         //Now get data from the cursor
