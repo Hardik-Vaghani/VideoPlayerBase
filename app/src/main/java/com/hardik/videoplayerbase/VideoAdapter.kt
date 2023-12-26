@@ -1,15 +1,20 @@
 package com.hardik.videoplayerbase
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.text.SpannableStringBuilder
 import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.hardik.videoplayerbase.databinding.RenameFieldBinding
 import com.hardik.videoplayerbase.databinding.VideoMoreFeaturesBinding
 import com.hardik.videoplayerbase.databinding.VideoViewBinding
 
@@ -73,6 +78,21 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
 
             bindingVMF.renameBtn.setOnClickListener {
                 dialog.dismiss()
+                val customDialogRF = LayoutInflater.from(context).inflate(R.layout.rename_field, holder.root, false)
+                val bindingRF = RenameFieldBinding.bind(customDialogRF)
+                val dialogRF = MaterialAlertDialogBuilder(context).setView(customDialogRF)
+                    .setCancelable(false)
+                    .setPositiveButton("Rename"){self,_ ->
+                        self.dismiss()
+                    }
+                    .setNegativeButton("Cancel"){self,_ ->
+                        self.dismiss()
+                    }
+                    .create()
+                dialogRF.show()
+                bindingRF.renameField.text = SpannableStringBuilder(videoList[position].title)//string convert in editable string using SpannableStringBuilder
+                dialogRF.getButton(AlertDialog.BUTTON_POSITIVE).setBackgroundColor(MaterialColors.getColor(context,R.attr.themeColor,Color.RED))//set themes color/and default color red
+                dialogRF.getButton(AlertDialog.BUTTON_NEGATIVE).setBackgroundColor(MaterialColors.getColor(context,R.attr.themeColor,Color.RED))//set themes color/and default color red
 //                requestWriteR()
             }
             return@setOnLongClickListener true
