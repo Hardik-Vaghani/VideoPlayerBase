@@ -5,6 +5,10 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.provider.Settings
 import android.text.SpannableStringBuilder
 import android.text.format.DateUtils
 import android.view.LayoutInflater
@@ -116,5 +120,17 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
         this.videoList.addAll(searchList)
         notifyDataSetChanged()
 
+    }
+
+    //for requesting android 11 or higher storage permission
+    private fun requestPermissionR(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if(!Environment.isExternalStorageManager()){
+                    val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                    intent.addCategory("android.intent.category.DEFAULT")
+                    intent.data = Uri.parse("package:${context.applicationContext.packageName}")
+                    ContextCompat.startActivity(context, intent, null)
+                }
+            }
     }
 }
