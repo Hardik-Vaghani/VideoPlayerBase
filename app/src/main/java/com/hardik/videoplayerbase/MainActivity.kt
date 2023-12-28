@@ -9,6 +9,8 @@ import android.graphics.Color
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -28,6 +30,8 @@ import kotlin.system.exitProcess
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var toggle: ActionBarDrawerToggle
+    private var runnable: Runnable? = null
+
 
     companion object {
         lateinit var videoList: ArrayList<Video>
@@ -49,6 +53,7 @@ class MainActivity : AppCompatActivity() {
             MediaStore.Video.Media.SIZE + " DESC"
         )
         var dataChanged:Boolean = false
+        var adapterChanged: Boolean = false
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,6 +75,16 @@ class MainActivity : AppCompatActivity() {
             folderList = ArrayList()//now initialize
             videoList = getAllVideos()
             setFragment(VideosFragment())
+
+            runnable = Runnable {
+                if (dataChanged) {
+                    videoList = getAllVideos()
+                    dataChanged = false
+                    adapterChanged = true
+                }
+                Handler(Looper.getMainLooper()).postDelayed(runnable!!, 200)
+            }
+            Handler(Looper.getMainLooper()).postDelayed(runnable!!, 0)
         }
         binding.bottomNav.setOnItemSelectedListener {
             if (dataChanged) videoList=getAllVideos()//when data changed is rename use that time execution
@@ -263,5 +278,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return tempList
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        runnable = null
     }
 }

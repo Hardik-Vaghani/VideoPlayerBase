@@ -185,6 +185,22 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
                             MediaScannerConnection.scanFile(context, arrayOf(file.path), arrayOf("video/*"), null)
                             MainActivity.videoList.removeAt(position)
                             notifyDataSetChanged()
+                            when{
+                                MainActivity.search -> {
+                                    MainActivity.dataChanged = true
+                                    videoList.removeAt(position)
+                                    notifyDataSetChanged()
+                                }
+                                isFolder -> {
+                                    MainActivity.dataChanged = true
+                                    FoldersActivity.currentFolderVideo.removeAt(position)
+                                    notifyDataSetChanged()
+                                }
+                                else -> {
+                                    MainActivity.videoList.removeAt(position)
+                                    notifyDataSetChanged()
+                                }
+                            }
                         }else{
                             Toast.makeText(context,"Permission Denied!",Toast.LENGTH_LONG).show()
                         }

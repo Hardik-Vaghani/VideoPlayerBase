@@ -74,7 +74,7 @@ class VideosFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         if (PlayerActivity.position != -1)binding.nowPlayingBtn.visibility = View.VISIBLE
-        if (MainActivity.dataChanged) adapter.notifyDataSetChanged() //when data changed is rename use that time execution
-        MainActivity.dataChanged = false //when data changed is rename use that time execution
+        if (MainActivity.adapterChanged) adapter.notifyDataSetChanged() //when adapter changed is rename use that time execution
+        MainActivity.adapterChanged = false //when adapter changed is rename use that time execution
     }
 }
