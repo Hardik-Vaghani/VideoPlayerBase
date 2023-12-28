@@ -46,6 +46,7 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
         return MyHolder(VideoViewBinding.inflate(LayoutInflater.from(context),parent,false))
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onBindViewHolder(holder: MyHolder, @SuppressLint("RecyclerView") position: Int) {
         holder.title.text = videoList[position].title
         holder.folder.text = videoList[position].folderName
@@ -172,8 +173,32 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
             }
 
             bindingVMF.deleteBtn.setOnClickListener {
+                requestPermissionR()
                 dialog.dismiss()
-//                requestDeleteR(position = position)
+
+                val builder = MaterialAlertDialogBuilder(context)
+                builder.setTitle("Delete Video?")
+                    .setMessage(videoList[position].title)
+                    .setPositiveButton("Yes"){ self, _ ->
+                        val file = File(videoList[position].path)
+                        if(file.exists() && file.delete()){
+                            MediaScannerConnection.scanFile(context, arrayOf(file.path), arrayOf("video/*"), null)
+                            MainActivity.videoList.removeAt(position)
+                            notifyDataSetChanged()
+                        }else{
+                            Toast.makeText(context,"Permission Denied!",Toast.LENGTH_LONG).show()
+                        }
+                        self.dismiss()
+                    }
+                    .setNegativeButton("No"){self, _ -> self.dismiss() }
+                val delDialog = builder.create()
+                delDialog.show()
+                delDialog.getButton(AlertDialog.BUTTON_POSITIVE).setBackgroundColor(
+                    MaterialColors.getColor(context, R.attr.themeColor, Color.RED)
+                )
+                delDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setBackgroundColor(
+                    MaterialColors.getColor(context, R.attr.themeColor, Color.RED)
+                )
             }
             return@setOnLongClickListener true
         }
