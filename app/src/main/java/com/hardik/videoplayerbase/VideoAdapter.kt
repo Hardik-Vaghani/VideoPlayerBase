@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -13,6 +14,7 @@ import android.text.SpannableStringBuilder
 import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -21,6 +23,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.hardik.videoplayerbase.databinding.RenameFieldBinding
 import com.hardik.videoplayerbase.databinding.VideoMoreFeaturesBinding
 import com.hardik.videoplayerbase.databinding.VideoViewBinding
+import java.io.File
 
 class VideoAdapter(private val context: Context, private var videoList: ArrayList<Video>, private val isFolder:Boolean = false) :
     RecyclerView.Adapter<VideoAdapter.MyHolder>() {
@@ -87,6 +90,38 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
                 val dialogRF = MaterialAlertDialogBuilder(context).setView(customDialogRF)
                     .setCancelable(false)
                     .setPositiveButton("Rename"){self,_ ->
+                        val currentFile = File(videoList[position].path)
+                        val newName = bindingRF.renameField.text
+                        if(newName != null && currentFile.exists() && newName.toString().isNotEmpty()){
+                            val newFile = File(currentFile.parentFile,newName.toString()+"."+currentFile.extension)
+                            if (currentFile.renameTo(newFile )){
+                                MediaScannerConnection.scanFile(context, arrayOf(newFile.toString()), arrayOf("video/*"),null)
+                                when{
+                                    MainActivity.search -> {
+                                        MainActivity.searchList[position].title = newName.toString()
+                                        MainActivity.searchList[position].path = newFile.path
+                                        MainActivity.searchList[position].artUri = Uri.fromFile(newFile)
+                                        notifyItemChanged(position)
+                                    }
+                                    isFolder -> {
+                                        FoldersActivity.currentFolderVideo[position].title = newName.toString()
+                                        FoldersActivity.currentFolderVideo[position].path = newFile.path
+                                        FoldersActivity.currentFolderVideo[position].artUri = Uri.fromFile(newFile)
+                                        notifyItemChanged(position)
+                                        MainActivity.dataChanged = true
+                                    }
+                                    else -> {
+                                        MainActivity.videoList[position].title = newName.toString()
+                                        MainActivity.videoList[position].path = newFile.path
+                                        MainActivity.videoList[position].artUri = Uri.fromFile(newFile)
+                                        notifyItemChanged(position)
+                                    }
+                                }
+                            }
+                                else {
+                                    Toast.makeText(context,"Permission Denied!",Toast.LENGTH_LONG).show()
+                            }
+                        }
                         self.dismiss()
                     }
                     .setNegativeButton("Cancel"){self,_ ->

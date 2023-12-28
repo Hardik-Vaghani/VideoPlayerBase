@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity() {
             MediaStore.Video.Media.SIZE,
             MediaStore.Video.Media.SIZE + " DESC"
         )
+        var dataChanged:Boolean = false
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,6 +72,7 @@ class MainActivity : AppCompatActivity() {
             setFragment(VideosFragment())
         }
         binding.bottomNav.setOnItemSelectedListener {
+            if (dataChanged) videoList=getAllVideos()//when data changed is rename use that time execution
             when (it.itemId) {
                 R.id.video_view -> setFragment(VideosFragment())
                 R.id.folders_view -> setFragment(FoldersFragment())
