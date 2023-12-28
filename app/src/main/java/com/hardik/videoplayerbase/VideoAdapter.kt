@@ -12,14 +12,17 @@ import android.os.Environment
 import android.provider.Settings
 import android.text.SpannableStringBuilder
 import android.text.format.DateUtils
+import android.text.format.Formatter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.text.bold
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.hardik.videoplayerbase.databinding.DetailsViewBinding
 import com.hardik.videoplayerbase.databinding.RenameFieldBinding
 import com.hardik.videoplayerbase.databinding.VideoMoreFeaturesBinding
 import com.hardik.videoplayerbase.databinding.VideoViewBinding
@@ -143,6 +146,34 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
                 shareIntent.type = "video/*"
                 shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(videoList[position].path))
                 ContextCompat.startActivity(context, Intent.createChooser(shareIntent, "Sharing Video File!!"), null)
+            }
+
+            //Information of video
+            bindingVMF.infoBtn.setOnClickListener {
+                dialog.dismiss()
+                val customDialogIF = LayoutInflater.from(context).inflate(R.layout.details_view, holder.root, false)
+                val bindingIF = DetailsViewBinding.bind(customDialogIF)
+                val dialogIF = MaterialAlertDialogBuilder(context).setView(customDialogIF)
+                    .setCancelable(false)
+                    .setPositiveButton("Ok"){self, _ ->
+                        self.dismiss()
+                    }
+                    .create()
+                dialogIF.show()
+                val infoText = SpannableStringBuilder().bold { append("DETAILS\n\nName: ") }.append(videoList[position].title)
+                    .bold { append("\n\nDuration: ") }.append(DateUtils.formatElapsedTime(videoList[position].duration/1000))//pass seconds and itself set time duration
+                    .bold { append("\n\nFile Size: ") }.append(Formatter.formatShortFileSize(context, videoList[position].size.toLong()))//pass size and convert in to mb/gb size
+                    .bold { append("\n\nLocation: ") }.append(videoList[position].path)
+
+                bindingIF.detailTV.text = infoText
+                dialogIF.getButton(AlertDialog.BUTTON_POSITIVE).setBackgroundColor(
+                    MaterialColors.getColor(context, R.attr.themeColor, Color.RED)
+                )
+            }
+
+            bindingVMF.deleteBtn.setOnClickListener {
+                dialog.dismiss()
+//                requestDeleteR(position = position)
             }
             return@setOnLongClickListener true
         }
