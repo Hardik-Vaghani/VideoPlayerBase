@@ -134,6 +134,16 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
                 dialogRF.getButton(AlertDialog.BUTTON_NEGATIVE).setBackgroundColor(MaterialColors.getColor(context,R.attr.themeColor,Color.RED))//set themes color/and default color red
 //                requestWriteR()
             }
+
+            //video sharing
+            bindingVMF.shareBtn.setOnClickListener{
+                dialog.dismiss()
+                val shareIntent = Intent()
+                shareIntent.action = Intent.ACTION_SEND
+                shareIntent.type = "video/*"
+                shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(videoList[position].path))
+                ContextCompat.startActivity(context, Intent.createChooser(shareIntent, "Sharing Video File!!"), null)
+            }
             return@setOnLongClickListener true
         }
     }
