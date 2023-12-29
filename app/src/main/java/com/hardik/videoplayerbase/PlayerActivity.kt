@@ -17,6 +17,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.widget.FrameLayout
+import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
@@ -40,9 +43,13 @@ import kotlin.system.exitProcess
 
 class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListener {
     private lateinit var binding: ActivityPlayerBinding
-    private lateinit var runnable: Runnable
     private var isSubtitle: Boolean = true
     private var moreTime: Int = 0
+    private lateinit var playPauseBtn: ImageButton
+    private lateinit var fullScreenBtn: ImageButton
+    private lateinit var videoTitle: TextView
+//    private lateinit var gestureDetectorCompat: GestureDetectorCompat
+//    private var minSwipeY: Float = 0f
 
     companion object {
         private var audioManager: AudioManager? = null
@@ -74,6 +81,11 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setTheme(R.style.playerActivityTheme)
         setContentView(binding.root)
+
+        videoTitle = findViewById(R.id.videoTitle)
+        playPauseBtn = findViewById(R.id.playPauseBtn)
+        fullScreenBtn = findViewById(R.id.fullScreenBtn)
+
         // for immersive mode (fullscreen mode) this for bottom button of android
         WindowCompat.setDecorFitsSystemWindows(window, false)
         WindowInsetsControllerCompat(window, binding.root).let { controller ->
@@ -136,60 +148,59 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
             "NowPlaying" ->{
                 //initialize speed again
                 speed = 1.0f
-                binding.videoTitle.text = playerList[position].title
-                binding.videoTitle.isSelected = true
+                videoTitle.text = playerList[position].title
+                videoTitle.isSelected = true
                 binding.playerView.player = player
                 playVideo()
                 playInFullscreen(enable = isFullscreen)
-                setVisibility()
             }
         }
-        if (repeat) binding.repeatBtn.setImageResource(R.drawable.repeat_icon_one)
-        else binding.repeatBtn.setImageResource(R.drawable.repeat_icon_all)
+        if (repeat) findViewById<ImageButton>(R.id.repeatBtn).setImageResource(R.drawable.repeat_icon_one)
+        else findViewById<ImageButton>(R.id.repeatBtn).setImageResource(R.drawable.repeat_icon_all)
     }
 
     @SuppressLint("SetTextI18n", "ObsoleteSdkInt")
     private fun initializeBinding() {
-        binding.forwardFL.setOnClickListener(DoubleClickListener(callback = object: DoubleClickListener.Callback{
+        findViewById<FrameLayout>(R.id.forwardFL).setOnClickListener(DoubleClickListener(callback = object: DoubleClickListener.Callback{
             override fun doubleClicked() {
                 binding.playerView.showController()
-                binding.forwardBtn.visibility = View.VISIBLE
+                findViewById<ImageButton>(R.id.forwardBtn).visibility = View.VISIBLE
                 player.seekTo(player.currentPosition + 10000L)
                 moreTime = 0
             }
 
         }))
-        binding.rewindFL.setOnClickListener(DoubleClickListener(callback = object: DoubleClickListener.Callback{
+        findViewById<FrameLayout>(R.id.rewindFL).setOnClickListener(DoubleClickListener(callback = object: DoubleClickListener.Callback{
             override fun doubleClicked() {
                 binding.playerView.showController()
-                binding.rewindBtn.visibility = View.VISIBLE
+                findViewById<ImageButton>(R.id.rewindBtn).visibility = View.VISIBLE
                 player.seekTo(player.currentPosition - 10000L)
                 moreTime = 0
             }
 
         }))
-        binding.backBtn.setOnClickListener {
+        findViewById<ImageButton>(R.id.backBtn).setOnClickListener {
             finish()//when click this button activity close
         }
-        binding.playPauseBtn.setOnClickListener {
+        playPauseBtn.setOnClickListener {
             //if player is playing so pause either play
             if (player.isPlaying) pauseVideo()
             else playVideo()
         }
-        binding.nextBtn.setOnClickListener { nextPrevVideo() }
-        binding.prevBtn.setOnClickListener { nextPrevVideo(isNext = false) }
-        binding.repeatBtn.setOnClickListener {
+        findViewById<ImageButton>(R.id.nextBtn).setOnClickListener { nextPrevVideo() }
+        findViewById<ImageButton>(R.id.prevBtn).setOnClickListener { nextPrevVideo(isNext = false) }
+        findViewById<ImageButton>(R.id.repeatBtn).setOnClickListener {
             if (repeat) {
                 repeat = false
                 player.repeatMode = Player.REPEAT_MODE_OFF
-                binding.repeatBtn.setImageResource(R.drawable.repeat_icon_off)
+                findViewById<ImageButton>(R.id.repeatBtn).setImageResource(R.drawable.repeat_icon_off)
             } else {
                 repeat = true
                 player.repeatMode = Player.REPEAT_MODE_ONE
-                binding.repeatBtn.setImageResource(R.drawable.repeat_icon_one)
+                findViewById<ImageButton>(R.id.repeatBtn).setImageResource(R.drawable.repeat_icon_one)
             }
         }
-        binding.fullScreenBtn.setOnClickListener {
+        fullScreenBtn.setOnClickListener {
             if (isFullscreen) {
                 isFullscreen = false
                 playInFullscreen(enable = false)
@@ -216,7 +227,7 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
             }
         }
 
-        binding.moreFeatures.setOnClickListener {
+        findViewById<ImageButton>(R.id.more_features).setOnClickListener {
             pauseVideo()//first pause video
             val customDialog =
                 LayoutInflater.from(this).inflate(R.layout.more_features, binding.root, false)
@@ -416,8 +427,8 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
         //initialize trackSelector
         trackSelector = DefaultTrackSelector(this)
 
-        binding.videoTitle.text = playerList[position].title
-        binding.videoTitle.isSelected = true
+        videoTitle.text = playerList[position].title
+        videoTitle.isSelected = true
         player = ExoPlayer.Builder(this)
             .setTrackSelector(trackSelector)
             .build()
@@ -440,24 +451,30 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
 
         playInFullscreen(enable = isFullscreen)//when value is contain isFullscreen val,that is set.
 
-        setVisibility()
-
         //initialize loudnessEnhancer
         loudnessEnhancer = LoudnessEnhancer(player.audioSessionId)
         loudnessEnhancer.enabled = true
 
         //initialize and store id. for when again play same video
         nowPlayingId = playerList[position].id
+
+        binding.playerView.setControllerVisibilityListener {
+            when{
+                isLocked -> binding.lockButton.visibility = View.VISIBLE
+                binding.playerView.isControllerVisible -> binding.lockButton.visibility = View.VISIBLE
+                else -> binding.lockButton.visibility = View.INVISIBLE
+            }
+        }
     }
 
 
     private fun playVideo() {
-        binding.playPauseBtn.setImageResource(R.drawable.pause_icon)
+        playPauseBtn.setImageResource(R.drawable.pause_icon)
         player.play()
     }
 
     private fun pauseVideo() {
-        binding.playPauseBtn.setImageResource(R.drawable.play_icon)
+        playPauseBtn.setImageResource(R.drawable.play_icon)
         player.pause()
     }
 
@@ -485,42 +502,13 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
         if (enable) {
             binding.playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
             player.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
-            binding.fullScreenBtn.setImageResource(R.drawable.fullscreen_exit_icon)
+            fullScreenBtn.setImageResource(R.drawable.fullscreen_exit_icon)
         } else {
 
             binding.playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
             player.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
-            binding.fullScreenBtn.setImageResource(R.drawable.fullscreen_icon)
+            fullScreenBtn.setImageResource(R.drawable.fullscreen_icon)
         }
-    }
-
-    private fun setVisibility() {
-        runnable = Runnable {
-            if (binding.playerView.isControllerVisible) changeVisibility(View.VISIBLE)
-            else changeVisibility(View.INVISIBLE)
-            Handler(Looper.getMainLooper()).postDelayed(runnable, 200)
-        }
-        Handler(Looper.getMainLooper()).postDelayed(runnable, 0)
-    }
-
-    private fun changeVisibility(visibility: Int) {
-        binding.topController.visibility = visibility
-        binding.bottomController.visibility = visibility
-        binding.playPauseBtn.visibility = visibility
-
-        //when lock is close that time it's not hide but always show
-        if (isLocked) binding.lockButton.visibility = View.VISIBLE
-        // when lock is open that time it's work
-        else binding.lockButton.visibility = visibility
-
-        if (moreTime == 2){
-            binding.rewindBtn.visibility = View.GONE
-            binding.forwardBtn.visibility = View.GONE
-        }else ++moreTime
-
-        //for lock screen function stop
-        binding.forwardFL.visibility = visibility
-        binding.rewindFL.visibility = visibility
     }
 
     private fun changeSped(isIncrement: Boolean) {
