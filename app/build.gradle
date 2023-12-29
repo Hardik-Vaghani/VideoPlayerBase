@@ -58,4 +58,7 @@ dependencies {
 
     //for vertical progressbar
     implementation 'com.github.lukelorusso:VerticalSeekBar:1.2.7'//optional
+
+    //Double Tap Library
+    implementation 'com.github.vkay94:DoubleTapPlayerView:1.0.4'
 }
