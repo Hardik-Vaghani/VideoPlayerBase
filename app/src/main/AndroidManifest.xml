@@ -30,16 +30,21 @@
         <activity
             android:name=".PlayerActivity"
             android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
-            android:exported="false"
             android:launchMode="singleTask"
             android:resizeableActivity="true"
             android:supportsPictureInPicture="true"
             android:theme="@style/playerActivityTheme"
-            tools:ignore="ObsoleteSdkInt"
+            tools:ignore="AppLinkUrlError,ObsoleteSdkInt"
+            android:exported="true"
             tools:targetApi="n">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="video/*" android:scheme="content"/>
+            </intent-filter>
         </activity>
         <activity
             android:name=".FoldersActivity"

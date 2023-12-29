@@ -11,11 +11,10 @@ import android.graphics.drawable.ColorDrawable
 import android.media.AudioManager
 import android.media.audiofx.LoudnessEnhancer
 import android.net.Uri
-import android.os.Build
+import android.os.*
 import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.provider.DocumentsContract
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
@@ -24,17 +23,24 @@ import android.widget.Toast
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.media3.exoplayer.dash.DashMediaSource
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.source.ConcatenatingMediaSource
+import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
+import com.google.android.exoplayer2.upstream.DataSource
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.hardik.videoplayerbase.databinding.ActivityPlayerBinding
 import com.hardik.videoplayerbase.databinding.BoosterBinding
 import com.hardik.videoplayerbase.databinding.MoreFeaturesBinding
 import com.hardik.videoplayerbase.databinding.SpeedDialogBinding
+import java.io.File
 import java.text.DecimalFormat
 import java.util.Locale
 import java.util.Timer
@@ -84,26 +90,39 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
             controller.systemBarsBehavior =
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
-        initializeLayout()
-        initializeBinding()
-        binding.forwardFL.setOnClickListener(DoubleClickListener(callback = object: DoubleClickListener.Callback{
-            override fun doubleClicked() {
-                binding.playerView.showController()
-                binding.forwardBtn.visibility = View.VISIBLE
-                player.seekTo(player.currentPosition + 10000L)
-                moreTime = 0
-            }
 
-        }))
-        binding.rewindFL.setOnClickListener(DoubleClickListener(callback = object: DoubleClickListener.Callback{
-            override fun doubleClicked() {
-                binding.playerView.showController()
-                binding.rewindBtn.visibility = View.VISIBLE
-                player.seekTo(player.currentPosition - 10000L)
-                moreTime = 0
+        try {
+            //for handling video file intent (Improved Version)
+            if(intent.data?.scheme.contentEquals("content")){
+                playerList = java.util.ArrayList()
+                position = 0
+                val cursor = contentResolver.query(intent.data!!, arrayOf(MediaStore.Video.Media.DATA), null, null,
+                    null)
+                cursor?.let {
+                    it.moveToFirst()
+                    try {
+                        val path = it.getString(it.getColumnIndexOrThrow(MediaStore.Video.Media.DATA))
+                        val file = File(path)
+                        val video = Video(id = "", title = file.name, duration = 0L, artUri = Uri.fromFile(file), path = path, size = "", folderName = "")
+                        playerList.add(video)
+                        cursor.close()
+                    }catch (e: Exception){
+                        val tempPath = getPathFromURI(context = this, uri = intent.data!!)
+                        val tempFile = File(tempPath)
+                        val video = Video(id = "", title = tempFile.name, duration = 0L, artUri = Uri.fromFile(tempFile), path = tempPath, size = "", folderName = "")
+                        playerList.add(video)
+                        cursor.close()
+                    }
+                }
+                createPlayer()
+                initializeBinding()
             }
+            else{
+                initializeLayout()
+                initializeBinding()
+            }
+        }catch (e: Exception){Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show()}
 
-        }))
     }
 
     private fun initializeLayout() {
@@ -140,6 +159,24 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
 
     @SuppressLint("SetTextI18n", "ObsoleteSdkInt")
     private fun initializeBinding() {
+        binding.forwardFL.setOnClickListener(DoubleClickListener(callback = object: DoubleClickListener.Callback{
+            override fun doubleClicked() {
+                binding.playerView.showController()
+                binding.forwardBtn.visibility = View.VISIBLE
+                player.seekTo(player.currentPosition + 10000L)
+                moreTime = 0
+            }
+
+        }))
+        binding.rewindFL.setOnClickListener(DoubleClickListener(callback = object: DoubleClickListener.Callback{
+            override fun doubleClicked() {
+                binding.playerView.showController()
+                binding.rewindBtn.visibility = View.VISIBLE
+                player.seekTo(player.currentPosition - 10000L)
+                moreTime = 0
+            }
+
+        }))
         binding.backBtn.setOnClickListener {
             finish()//when click this button activity close
         }
@@ -397,6 +434,7 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
         val mediaItem = MediaItem.fromUri(playerList[position].artUri)//directly play
         player.setMediaItem(mediaItem)
         player.prepare()
+        player.playWhenReady = true // Auto-play
         playVideo()
 
         //add completion listener
@@ -420,6 +458,7 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
         //initialize and store id. for when again play same video
         nowPlayingId = playerList[position].id
     }
+
 
     private fun playVideo() {
         binding.playPauseBtn.setImageResource(R.drawable.pause_icon)
@@ -536,5 +575,26 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
         super.onResume()
         if (audioManager == null)audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         audioManager!!.requestAudioFocus(this,AudioManager.STREAM_MUSIC,AudioManager.AUDIOFOCUS_GAIN)
+    }
+
+    //used to get path of video selected by user (if column data fails to get path)
+    private fun getPathFromURI(context: Context , uri : Uri): String {
+        var filePath = ""
+        // ExternalStorageProvider
+        val docId = DocumentsContract.getDocumentId(uri)
+        val split = docId.split(':')
+        val type = split[0]
+
+        return if ("primary".equals(type, ignoreCase = true)) {
+            "${Environment.getExternalStorageDirectory()}/${split[1]}"
+        } else {
+            //getExternalMediaDirs() added in API 21
+            val external = context.externalMediaDirs
+            if (external.size > 1) {
+                filePath = external[1].absolutePath
+                filePath = filePath.substring(0, filePath.indexOf("Android")) + split[1]
+            }
+            filePath
+        }
     }
 }
