@@ -14,10 +14,7 @@ import android.net.Uri
 import android.os.*
 import android.provider.DocumentsContract
 import android.provider.MediaStore
-import android.view.LayoutInflater
-import android.view.View
-import android.view.Window
-import android.view.WindowManager
+import android.view.*
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.TextView
@@ -26,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.github.vkay94.dtpv.youtube.YouTubeOverlay
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -151,7 +149,8 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
                 speed = 1.0f
                 videoTitle.text = playerList[position].title
                 videoTitle.isSelected = true
-                binding.playerView.player = player
+//                binding.playerView.player = player
+                doubleTapEnable()
                 playVideo()
                 playInFullscreen(enable = isFullscreen)
             }
@@ -168,24 +167,7 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
                 else ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
 
         }
-        findViewById<FrameLayout>(R.id.forwardFL).setOnClickListener(DoubleClickListener(callback = object: DoubleClickListener.Callback{
-            override fun doubleClicked() {
-                binding.playerView.showController()
-                findViewById<ImageButton>(R.id.forwardBtn).visibility = View.VISIBLE
-                player.seekTo(player.currentPosition + 10000L)
-                moreTime = 0
-            }
 
-        }))
-        findViewById<FrameLayout>(R.id.rewindFL).setOnClickListener(DoubleClickListener(callback = object: DoubleClickListener.Callback{
-            override fun doubleClicked() {
-                binding.playerView.showController()
-                findViewById<ImageButton>(R.id.rewindBtn).visibility = View.VISIBLE
-                player.seekTo(player.currentPosition - 10000L)
-                moreTime = 0
-            }
-
-        }))
         findViewById<ImageButton>(R.id.backBtn).setOnClickListener {
             finish()//when click this button activity close
         }
@@ -439,7 +421,8 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
         player = ExoPlayer.Builder(this)
             .setTrackSelector(trackSelector)
             .build()
-        binding.playerView.player = player
+//        binding.playerView.player = player
+        doubleTapEnable()
         val mediaItem = MediaItem.fromUri(playerList[position].artUri)//directly play
         player.setMediaItem(mediaItem)
         player.prepare()
@@ -471,9 +454,6 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
                 binding.playerView.isControllerVisible -> binding.lockButton.visibility = View.VISIBLE
                 else -> binding.lockButton.visibility = View.INVISIBLE
             }
-
-            findViewById<ImageButton>(R.id.forwardBtn).visibility = View.GONE
-            findViewById<ImageButton>(R.id.rewindBtn).visibility = View.GONE
         }
     }
 
@@ -585,5 +565,20 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
             }
             filePath
         }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun doubleTapEnable(){
+        binding.playerView.player = player
+        binding.ytOverlay.performListener(object: YouTubeOverlay.PerformListener{
+            override fun onAnimationEnd() {
+                binding.ytOverlay.visibility = View.GONE
+            }
+
+            override fun onAnimationStart() {
+                binding.ytOverlay.visibility = View.VISIBLE
+            }
+        })
+        binding.ytOverlay.player(player)
     }
 }
