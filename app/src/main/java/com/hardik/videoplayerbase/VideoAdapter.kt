@@ -38,7 +38,7 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
         val title = binding.videoName
         val folder = binding.folderName
         val duration = binding.duration
-        val image = binding.videoImage
+        val image = binding.videoImg
         val root = binding.root
     }
 

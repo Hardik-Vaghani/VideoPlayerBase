@@ -3,7 +3,6 @@ package com.hardik.videoplayerbase
 import android.annotation.SuppressLint
 import android.app.AppOpsManager
 import android.app.PictureInPictureParams
-import android.app.PictureInPictureUiState
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -12,7 +11,6 @@ import android.media.AudioManager
 import android.media.audiofx.LoudnessEnhancer
 import android.net.Uri
 import android.os.*
-import androidx.appcompat.app.AppCompatActivity
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.view.LayoutInflater
@@ -20,21 +18,16 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.media3.exoplayer.dash.DashMediaSource
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource
-import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
-import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.hardik.videoplayerbase.databinding.ActivityPlayerBinding
 import com.hardik.videoplayerbase.databinding.BoosterBinding
@@ -42,9 +35,7 @@ import com.hardik.videoplayerbase.databinding.MoreFeaturesBinding
 import com.hardik.videoplayerbase.databinding.SpeedDialogBinding
 import java.io.File
 import java.text.DecimalFormat
-import java.util.Locale
-import java.util.Timer
-import java.util.TimerTask
+import java.util.*
 import kotlin.system.exitProcess
 
 class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListener {
