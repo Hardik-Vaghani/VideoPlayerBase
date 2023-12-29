@@ -127,6 +127,17 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <ImageButton
+            android:id="@+id/orientationBtn"
+            android:layout_width="45dp"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackground"
+            android:backgroundTint="@android:color/transparent"
+            android:contentDescription="@string/orientation"
+            android:src="@drawable/rotation_icon"
+            app:tint="@color/white"
+            tools:ignore="PrivateResource" />
+
+        <ImageButton
             android:id="@+id/repeatBtn"
             android:layout_width="45dp"
             android:layout_height="match_parent"
