@@ -62,4 +62,7 @@ dependencies {
 
     //Double Tap Library
     implementation 'com.github.vkay94:DoubleTapPlayerView:1.0.4'
+
+    //swipe layout
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 }

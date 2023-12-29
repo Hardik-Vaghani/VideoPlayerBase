@@ -38,6 +38,16 @@ class VideosFragment : Fragment() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+
+        //for refreshing layout
+        binding.root.setOnRefreshListener {
+            MainActivity.videoList = getAllVideos(requireContext())
+            adapter.updateList(MainActivity.videoList)
+            binding.totalVideos.text = "Total Videos: ${MainActivity.videoList.size}"
+
+            binding.root.isRefreshing = false
+        }
+
         binding.nowPlayingBtn.setOnClickListener{
             val intent = Intent(requireContext(),PlayerActivity::class.java)
             intent.putExtra("class","NowPlaying")//intent passing
