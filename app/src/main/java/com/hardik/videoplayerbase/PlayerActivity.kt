@@ -1,6 +1,7 @@
 package com.hardik.videoplayerbase
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.AppOpsManager
 import android.app.PictureInPictureParams
 import android.content.Context
@@ -8,6 +9,7 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.AudioManager
 import android.media.audiofx.LoudnessEnhancer
@@ -15,6 +17,7 @@ import android.net.Uri
 import android.os.*
 import android.provider.DocumentsContract
 import android.provider.MediaStore
+import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.ImageButton
@@ -27,6 +30,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.github.vkay94.dtpv.youtube.YouTubeOverlay
 import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.C.TRACK_TYPE_AUDIO
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
@@ -244,27 +248,58 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
                 playVideo()
 
                 val audioTrack = ArrayList<String>()
-                for (i in 0 until player.currentTrackGroups.length) {
-                    if (player.currentTrackGroups.get(i)
-                            .getFormat(0).selectionFlags == C.SELECTION_FLAG_DEFAULT
-                    ) {//if that track is selectable so select it.
-                        audioTrack.add(
-                            Locale(
-                                player.currentTrackGroups.get(i).getFormat(0).language.toString()
-                            ).displayLanguage
-                        )//Locale is short form to long form convert
+                val audioList = ArrayList<String>()
+//                for (i in 0 until player.currentTrackGroups.length) {
+//                    if (player.currentTrackGroups.get(i)
+//                            .getFormat(0).selectionFlags == C.SELECTION_FLAG_DEFAULT
+//                    ) {//if that track is selectable so select it.
+//                        audioTrack.add(
+//                            Locale(
+//                                player.currentTrackGroups.get(i).getFormat(0).language.toString()
+//                            ).displayLanguage
+//                        )//Locale is short form to long form convert
+//                    }
+//                }
+//                for(group in player.currentTracksInfo.trackGroupInfos) { }
+                val trackGroup = player.currentTracks.groups
+                for (trackIndex in 0 until trackGroup.size) {
+
+                    if (trackGroup[trackIndex].mediaTrackGroup.type == TRACK_TYPE_AUDIO){
+
+                        val trackFormat = trackGroup[trackIndex]
+                        for (trackIndex1 in 0 until trackFormat.length) {
+
+                            val trackFormat1 = trackFormat.getTrackFormat(trackIndex1)
+                            if (trackFormat1.sampleMimeType?.startsWith("audio/") == true) {
+                                val language = trackFormat1.language ?: ""
+                                // Handle the audio track data here
+                                audioTrack.add(trackFormat.getTrackFormat(trackIndex1).language.toString())
+                                audioList.add("${audioList.size + 1}. " + Locale(trackFormat.getTrackFormat(trackIndex1).language.toString()).displayLanguage.toString()
+                                        + " (${trackFormat.getTrackFormat(trackIndex1).label})")
+
+                            }
+                        }
                     }
                 }
-                val tempTracks =
-                    audioTrack.toArray(arrayOfNulls<CharSequence>(audioTrack.size))//convert arrayList to CharSequence
-                MaterialAlertDialogBuilder(this, R.style.alertDialog)
+
+                if(audioList[0].contains("null")) audioList[0] = "1. Default Track"
+
+                val tempTracks = audioList.toArray(arrayOfNulls<CharSequence>(audioList.size))//convert arrayList to CharSequence
+                val audioDialog = MaterialAlertDialogBuilder(this, R.style.alertDialog)
                     .setTitle("Select Language")
                     .setOnCancelListener { playVideo() }
-                    .setBackground(ColorDrawable(0x803700B3.toInt()))
+//                    .setBackground(ColorDrawable(0x803700B3.toInt()))
+                    .setPositiveButton("Off Audio"){ self, _ ->
+                        trackSelector.setParameters(trackSelector.buildUponParameters().setRendererDisabled(
+                            TRACK_TYPE_AUDIO,true // audio off
+                        ))
+                        self.dismiss()
+                    }
                     .setItems(tempTracks) { _, position ->
-                        Toast.makeText(this, audioTrack[position] + " selected", Toast.LENGTH_SHORT)
-                            .show()
-//                        trackSelector.setParameters(trackSelector.buildUponParameters().setPreferredAudioLanguage(audioTrack[position]))// change audio track on video
+                        Toast.makeText(this, audioList[position] + " selected", Toast.LENGTH_SHORT).show()
+                        trackSelector.setParameters(trackSelector.buildUponParameters()
+                            .setRendererDisabled(TRACK_TYPE_AUDIO,false)//audio on
+                            .setPreferredAudioLanguage(audioTrack[position]))// change audio track on video
                         // To switch audio track
                         val parameters = trackSelector.buildUponParameters()
                             .setPreferredAudioLanguage(audioTrack[position])
@@ -272,7 +307,11 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
 
                     }
                     .create()
-                    .show()
+
+                audioDialog.show()
+                audioDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.WHITE)
+                audioDialog.window?.setBackgroundDrawable(ColorDrawable(0x99000000.toInt()))
+
             }
 
             bindingMF.subtitlesBtn.setOnClickListener {
@@ -468,7 +507,6 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
             }
         }
     }
-
 
     private fun playVideo() {
         playPauseBtn.setImageResource(R.drawable.pause_icon)
