@@ -16,7 +16,7 @@ import com.hardik.videoplayerbase.databinding.FragmentVideosBinding
 class VideosFragment : Fragment() {
 
     private lateinit var binding: FragmentVideosBinding
-    private lateinit var adapter: VideoAdapter
+    lateinit var adapter: VideoAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)

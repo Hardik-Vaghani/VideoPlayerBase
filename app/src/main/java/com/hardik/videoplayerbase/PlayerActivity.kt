@@ -17,9 +17,7 @@ import android.net.Uri
 import android.os.*
 import android.provider.DocumentsContract
 import android.provider.MediaStore
-import android.util.Log
 import android.view.*
-import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -150,7 +148,7 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
             }
             "FolderActivity" -> {
                 playerList = ArrayList()
-                playerList.addAll(FoldersActivity.currentFolderVideo)
+                playerList.addAll(FoldersActivity.currentFolderVideos)
                 createPlayer()
             }
             "SearchedVideos" -> {

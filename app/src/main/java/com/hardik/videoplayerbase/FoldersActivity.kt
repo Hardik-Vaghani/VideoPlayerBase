@@ -1,6 +1,7 @@
 package com.hardik.videoplayerbase
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -11,9 +12,10 @@ import com.hardik.videoplayerbase.databinding.ActivityFoldersBinding
 import java.io.File
 
 class FoldersActivity : AppCompatActivity() {
+    lateinit var adapter: VideoAdapter
 
     companion object{
-        lateinit var currentFolderVideo: ArrayList<Video>
+        lateinit var currentFolderVideos: ArrayList<Video>
     }
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,14 +27,15 @@ class FoldersActivity : AppCompatActivity() {
         val position = intent.getIntExtra("position",0)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = MainActivity.folderList[position].folderName
-        currentFolderVideo = getAllVideos(MainActivity.folderList[position].id)//get find folder id and pass to function it's give list of videos
+        currentFolderVideos = getAllVideos(MainActivity.folderList[position].id)//get find folder id and pass to function it's give list of videos
 
         binding.videoRVFA.setHasFixedSize(true)
         binding.videoRVFA.setItemViewCacheSize(10)
         binding.videoRVFA.layoutManager = LinearLayoutManager(this@FoldersActivity)
         try {
-            binding.videoRVFA.adapter = VideoAdapter(this@FoldersActivity, currentFolderVideo, isFolder = true)
-            binding.totalVideosFA.text = "Total Videos: ${currentFolderVideo.size}"
+            adapter = VideoAdapter(this@FoldersActivity, currentFolderVideos, isFolder = true)
+            binding.videoRVFA.adapter = adapter
+            binding.totalVideosFA.text = "Total Videos: ${currentFolderVideos.size}"
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -99,5 +102,11 @@ class FoldersActivity : AppCompatActivity() {
             }
         }
         return tempList
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        adapter.onResult(requestCode, resultCode)
     }
 }
