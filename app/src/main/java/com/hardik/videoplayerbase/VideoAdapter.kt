@@ -3,6 +3,7 @@ package com.hardik.videoplayerbase
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -32,7 +33,7 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
     RecyclerView.Adapter<VideoAdapter.MyHolder>() {
 
     private var newPosition = 0
-//    private lateinit var dialogRF: androidx.appcompat.app.AlertDialog
+    private lateinit var dialogRF: androidx.appcompat.app.AlertDialog
 
     class MyHolder(binding: VideoViewBinding) : RecyclerView.ViewHolder(binding.root) {
         val title = binding.videoName
@@ -90,54 +91,54 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
             bindingVMF.renameBtn.setOnClickListener {
 //                requestPermissionR()
                 dialog.dismiss()
-                val customDialogRF = LayoutInflater.from(context).inflate(R.layout.rename_field, holder.root, false)
-                val bindingRF = RenameFieldBinding.bind(customDialogRF)
-                val dialogRF = MaterialAlertDialogBuilder(context).setView(customDialogRF)
-                    .setCancelable(false)
-                    .setPositiveButton("Rename"){self,_ ->
-                        val currentFile = File(videoList[position].path)
-                        val newName = bindingRF.renameField.text
-                        if(newName != null && currentFile.exists() && newName.toString().isNotEmpty()){
-                            val newFile = File(currentFile.parentFile,newName.toString()+"."+currentFile.extension)
-                            if (currentFile.renameTo(newFile )){
-                                MediaScannerConnection.scanFile(context, arrayOf(newFile.toString()), arrayOf("video/*"),null)
-                                when{
-                                    MainActivity.search -> {
-                                        MainActivity.searchList[position].title = newName.toString()
-                                        MainActivity.searchList[position].path = newFile.path
-                                        MainActivity.searchList[position].artUri = Uri.fromFile(newFile)
-                                        notifyItemChanged(position)
-                                    }
-                                    isFolder -> {
-                                        FoldersActivity.currentFolderVideos[position].title = newName.toString()
-                                        FoldersActivity.currentFolderVideos[position].path = newFile.path
-                                        FoldersActivity.currentFolderVideos[position].artUri = Uri.fromFile(newFile)
-                                        notifyItemChanged(position)
-                                        MainActivity.dataChanged = true
-                                    }
-                                    else -> {
-                                        MainActivity.videoList[position].title = newName.toString()
-                                        MainActivity.videoList[position].path = newFile.path
-                                        MainActivity.videoList[position].artUri = Uri.fromFile(newFile)
-                                        notifyItemChanged(position)
-                                    }
-                                }
-                            }
-                                else {
-                                    Toast.makeText(context,"Permission Denied!",Toast.LENGTH_LONG).show()
-                            }
-                        }
-                        self.dismiss()
-                    }
-                    .setNegativeButton("Cancel"){self,_ ->
-                        self.dismiss()
-                    }
-                    .create()
-                dialogRF.show()
-                bindingRF.renameField.text = SpannableStringBuilder(videoList[position].title)//string convert in editable string using SpannableStringBuilder
-                dialogRF.getButton(AlertDialog.BUTTON_POSITIVE).setBackgroundColor(MaterialColors.getColor(context,R.attr.themeColor,Color.RED))//set themes color/and default color red
-                dialogRF.getButton(AlertDialog.BUTTON_NEGATIVE).setBackgroundColor(MaterialColors.getColor(context,R.attr.themeColor,Color.RED))//set themes color/and default color red
-//                requestWriteR()
+//                val customDialogRF = LayoutInflater.from(context).inflate(R.layout.rename_field, holder.root, false)
+//                val bindingRF = RenameFieldBinding.bind(customDialogRF)
+//                val dialogRF = MaterialAlertDialogBuilder(context).setView(customDialogRF)
+//                    .setCancelable(false)
+//                    .setPositiveButton("Rename"){self,_ ->
+//                        val currentFile = File(videoList[position].path)
+//                        val newName = bindingRF.renameField.text
+//                        if(newName != null && currentFile.exists() && newName.toString().isNotEmpty()){
+//                            val newFile = File(currentFile.parentFile,newName.toString()+"."+currentFile.extension)
+//                            if (currentFile.renameTo(newFile )){
+//                                MediaScannerConnection.scanFile(context, arrayOf(newFile.toString()), arrayOf("video/*"),null)
+//                                when{
+//                                    MainActivity.search -> {
+//                                        MainActivity.searchList[position].title = newName.toString()
+//                                        MainActivity.searchList[position].path = newFile.path
+//                                        MainActivity.searchList[position].artUri = Uri.fromFile(newFile)
+//                                        notifyItemChanged(position)
+//                                    }
+//                                    isFolder -> {
+//                                        FoldersActivity.currentFolderVideos[position].title = newName.toString()
+//                                        FoldersActivity.currentFolderVideos[position].path = newFile.path
+//                                        FoldersActivity.currentFolderVideos[position].artUri = Uri.fromFile(newFile)
+//                                        notifyItemChanged(position)
+//                                        MainActivity.dataChanged = true
+//                                    }
+//                                    else -> {
+//                                        MainActivity.videoList[position].title = newName.toString()
+//                                        MainActivity.videoList[position].path = newFile.path
+//                                        MainActivity.videoList[position].artUri = Uri.fromFile(newFile)
+//                                        notifyItemChanged(position)
+//                                    }
+//                                }
+//                            }
+//                                else {
+//                                    Toast.makeText(context,"Permission Denied!",Toast.LENGTH_LONG).show()
+//                            }
+//                        }
+//                        self.dismiss()
+//                    }
+//                    .setNegativeButton("Cancel"){self,_ ->
+//                        self.dismiss()
+//                    }
+//                    .create()
+//                dialogRF.show()
+//                bindingRF.renameField.text = SpannableStringBuilder(videoList[position].title)//string convert in editable string using SpannableStringBuilder
+//                dialogRF.getButton(AlertDialog.BUTTON_POSITIVE).setBackgroundColor(MaterialColors.getColor(context,R.attr.themeColor,Color.RED))//set themes color/and default color red
+//                dialogRF.getButton(AlertDialog.BUTTON_NEGATIVE).setBackgroundColor(MaterialColors.getColor(context,R.attr.themeColor,Color.RED))//set themes color/and default color red
+                requestWriteR()
             }
 
             //video sharing
@@ -176,47 +177,6 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
             bindingVMF.deleteBtn.setOnClickListener {
                 dialog.dismiss()
                 requestDeleteR(position = position)
-//                requestPermissionR()
-
-//                val builder = MaterialAlertDialogBuilder(context)
-//                builder.setTitle("Delete Video?")
-//                    .setMessage(videoList[position].title)
-//                    .setPositiveButton("Yes"){ self, _ ->
-//                        val file = File(videoList[position].path)
-//                        if(file.exists() && file.delete()){
-//                            MediaScannerConnection.scanFile(context, arrayOf(file.path), arrayOf("video/*"), null)
-//                            MainActivity.videoList.removeAt(position)
-//                            notifyDataSetChanged()
-//                            when{
-//                                MainActivity.search -> {
-//                                    MainActivity.dataChanged = true
-//                                    videoList.removeAt(position)
-//                                    notifyDataSetChanged()
-//                                }
-//                                isFolder -> {
-//                                    MainActivity.dataChanged = true
-//                                    FoldersActivity.currentFolderVideos.removeAt(position)
-//                                    notifyDataSetChanged()
-//                                }
-//                                else -> {
-//                                    MainActivity.videoList.removeAt(position)
-//                                    notifyDataSetChanged()
-//                                }
-//                            }
-//                        }else{
-//                            Toast.makeText(context,"Permission Denied!",Toast.LENGTH_LONG).show()
-//                        }
-//                        self.dismiss()
-//                    }
-//                    .setNegativeButton("No"){self, _ -> self.dismiss() }
-//                val delDialog = builder.create()
-//                delDialog.show()
-//                delDialog.getButton(AlertDialog.BUTTON_POSITIVE).setBackgroundColor(
-//                    MaterialColors.getColor(context, R.attr.themeColor, Color.RED)
-//                )
-//                delDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setBackgroundColor(
-//                    MaterialColors.getColor(context, R.attr.themeColor, Color.RED)
-//                )
             }
             return@setOnLongClickListener true
         }
@@ -311,12 +271,122 @@ class VideoAdapter(private val context: Context, private var videoList: ArrayLis
         }
     }
 
+    private fun requestWriteR(){
+        //files to modify
+        val uriList: List<Uri> = listOf(Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+            videoList[newPosition].id))
+
+        //requesting file write permission for specific files
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val pi = MediaStore.createWriteRequest(context.contentResolver, uriList)
+            (context as Activity).startIntentSenderForResult(pi.intentSender, 124,
+                null, 0, 0, 0, null)
+        }else renameFunction(newPosition)
+    }
+
+    private fun renameFunction(position: Int){
+        val customDialogRF = LayoutInflater.from(context).inflate(R.layout.rename_field,
+            (context as Activity).findViewById(R.id.drawerLayoutMA), false)
+        val bindingRF = RenameFieldBinding.bind(customDialogRF)
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+            dialogRF = MaterialAlertDialogBuilder(context).setView(customDialogRF)
+                .setCancelable(false)
+                .setPositiveButton("Rename"){ self, _ ->
+                    val currentFile = File(videoList[position].path)
+                    val newName = bindingRF.renameField.text
+                    if(newName != null && currentFile.exists() && newName.toString().isNotEmpty()){
+                        val newFile = File(currentFile.parentFile, newName.toString()+"."+currentFile.extension)
+
+                        val fromUri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                            videoList[position].id)
+
+                        ContentValues().also {
+                            it.put(MediaStore.Files.FileColumns.IS_PENDING, 1)
+                            context.contentResolver.update(fromUri, it, null, null)
+                            it.clear()
+
+                            //updating file details
+                            it.put(MediaStore.Files.FileColumns.DISPLAY_NAME, newName.toString())
+                            it.put(MediaStore.Files.FileColumns.IS_PENDING, 0)
+                            context.contentResolver.update(fromUri, it, null, null)
+                        }
+
+                        updateRenameUI(position, newName = newName.toString(), newFile = newFile)
+                    }
+                    self.dismiss()
+                }
+                .setNegativeButton("Cancel"){self, _ ->
+                    self.dismiss()
+                }
+                .create()
+        }
+        else{
+            dialogRF = MaterialAlertDialogBuilder(context).setView(customDialogRF)
+                .setCancelable(false)
+                .setPositiveButton("Rename"){ self, _ ->
+                    val currentFile = File(videoList[position].path)
+                    val newName = bindingRF.renameField.text
+                    if(newName != null && currentFile.exists() && newName.toString().isNotEmpty()){
+                        val newFile = File(currentFile.parentFile, newName.toString()+"."+currentFile.extension)
+                        if(currentFile.renameTo(newFile)){
+                            MediaScannerConnection.scanFile(context, arrayOf(newFile.toString()), arrayOf("video/*"), null)
+                            updateRenameUI(position = position, newName = newName.toString(), newFile = newFile)
+                        }
+                    }
+                    self.dismiss()
+                }
+                .setNegativeButton("Cancel"){self, _ ->
+                    self.dismiss()
+                }
+                .create()
+        }
+        bindingRF.renameField.text = SpannableStringBuilder(videoList[newPosition].title)
+        dialogRF.show()
+        dialogRF.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setBackgroundColor(
+            MaterialColors.getColor(context,R.attr.themeColor, Color.BLACK))
+        dialogRF.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setBackgroundColor(
+            MaterialColors.getColor(context,R.attr.themeColor, Color.BLACK))
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun updateRenameUI(position: Int, newName: String, newFile: File){
+        when{
+            MainActivity.search -> {
+//                MainActivity.searchList[position].title = newName
+//                MainActivity.searchList[position].path = newFile.path
+//                MainActivity.searchList[position].artUri = Uri.fromFile(newFile)
+//                notifyItemChanged(position)
+                MainActivity.videoList = getAllVideos(context)
+                videoList = MainActivity.videoList
+                notifyDataSetChanged()
+            }
+            isFolder -> {
+                FoldersActivity.currentFolderVideos[position].title = newName
+                FoldersActivity.currentFolderVideos[position].path = newFile.path
+                FoldersActivity.currentFolderVideos[position].artUri = Uri.fromFile(newFile)
+                notifyItemChanged(position)
+//                MainActivity.dataChanged = true
+                MainActivity.videoList = getAllVideos(context)
+            }
+            else -> {
+//                MainActivity.videoList[position].title = newName
+//                MainActivity.videoList[position].path = newFile.path
+//                MainActivity.videoList[position].artUri = Uri.fromFile(newFile)
+//                notifyItemChanged(position)
+                MainActivity.videoList = getAllVideos(context)
+                videoList = MainActivity.videoList
+                notifyDataSetChanged()
+            }
+        }
+    }
+
     fun onResult(requestCode: Int, resultCode: Int){
         when(requestCode){
             123 -> {
                 if(resultCode == Activity.RESULT_OK) updateDeleteUI(newPosition)
             }
-//            124 -> if(resultCode == Activity.RESULT_OK) renameFunction(newPosition)
+            124 -> if(resultCode == Activity.RESULT_OK) renameFunction(newPosition)
         }
     }
 }
