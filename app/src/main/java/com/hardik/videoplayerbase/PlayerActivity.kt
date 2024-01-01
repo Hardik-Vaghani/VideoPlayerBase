@@ -250,40 +250,24 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
 
                 val audioTrack = ArrayList<String>()//using in backend
                 val audioList = ArrayList<String>()//only showing
-//                for (i in 0 until player.currentTrackGroups.length) {
-//                    if (player.currentTrackGroups.get(i)
-//                            .getFormat(0).selectionFlags == C.SELECTION_FLAG_DEFAULT
-//                    ) {//if that track is selectable so select it.
-//                        audioTrack.add(
-//                            Locale(
-//                                player.currentTrackGroups.get(i).getFormat(0).language.toString()
-//                            ).displayLanguage
-//                        )//Locale is short form to long form convert
-//                    }
-//                }
-//                for(group in player.currentTracksInfo.trackGroupInfos) { }
-                val trackGroup = player.currentTracks.groups
-                for (trackIndex in 0 until trackGroup.size) {
 
-                    if (trackGroup[trackIndex].mediaTrackGroup.type == TRACK_TYPE_AUDIO){
-
-                        val trackFormat = trackGroup[trackIndex]
-                        for (trackIndex1 in 0 until trackFormat.length) {
-
-                            val trackFormat1 = trackFormat.getTrackFormat(trackIndex1)
-                            if (trackFormat1.sampleMimeType?.startsWith("audio/") == true) {
-                                val language = trackFormat1.language ?: ""
+                for(group in player.currentTracks.groups){
+                    if(group.type == TRACK_TYPE_AUDIO){
+                        val groupInfo = group.mediaTrackGroup
+                        for (i in 0 until groupInfo.length){
+                            if (groupInfo.getFormat(i).sampleMimeType?.startsWith("audio/") == true) {
                                 // Handle the audio track data here
-                                audioTrack.add(trackFormat.getTrackFormat(trackIndex1).language.toString())
-                                audioList.add("${audioList.size + 1}. " + Locale(trackFormat.getTrackFormat(trackIndex1).language.toString()).displayLanguage.toString()
-                                        + " (${trackFormat.getTrackFormat(trackIndex1).label})")
-
+                                audioTrack.add(groupInfo.getFormat(i).language.toString())
+                                audioList.add("${audioList.size + 1}. " + Locale(groupInfo.getFormat(i).language.toString()).displayLanguage.toString()
+                                        + " (${if(groupInfo.getFormat(i).label.toString() == "null") "Track" else groupInfo.getFormat(i).label})")
                             }
                         }
                     }
                 }
 
-                if(audioList[0].contains("null")) audioList[0] = "1. Default Track"
+                if (audioList.isNotEmpty()){
+                    if(audioList[0].contains("null") || audioList[0].contains("und")) audioList[0] = "1. Default Track"
+                }
 
                 val tempTracks = audioList.toArray(arrayOfNulls<CharSequence>(audioList.size))//convert arrayList to CharSequence
                 val audioDialog = MaterialAlertDialogBuilder(this, R.style.alertDialog)
@@ -327,16 +311,17 @@ class PlayerActivity : AppCompatActivity(), AudioManager.OnAudioFocusChangeListe
                     if (group.type == TRACK_TYPE_TEXT){
                         val groupInfo = group.mediaTrackGroup
                         for (i in 0 until groupInfo.length){
-                            subtitles.add(groupInfo.getFormat(i).toString())
-                            subtitlesList.add("${subtitlesList.size + 1}. " + Locale(groupInfo.getFormat(i).language.toString()).displayLanguage.toString()
-                                    + " (${groupInfo.getFormat(i).label})")
-
-                            Log.e("TAG", "initializeBinding: "+Locale(groupInfo.getFormat(i).language.toString()).displayLanguage.toString(), )
+                                // Handle the audio track data here
+                                subtitles.add(groupInfo.getFormat(i).toString())
+                                subtitlesList.add("${subtitlesList.size + 1}. " + Locale(groupInfo.getFormat(i).language.toString()).displayLanguage.toString()
+                                        + " (${if(groupInfo.getFormat(i).label.toString() == "null") "Subtitle" else groupInfo.getFormat(i).label})")
                         }
                     }
                 }
 
-                if(subtitlesList[0].contains("null")) subtitlesList[0] = "1. Default Subtitle"
+                if (subtitlesList.isNotEmpty()){
+                    if(subtitlesList[0].contains("null")||subtitlesList[0].contains("und")) subtitlesList[0] = "1. Default Subtitle"
+                }
 
                 val tempTracks = subtitlesList.toArray(arrayOfNulls<CharSequence>(subtitlesList.size))//convert arrayList to CharSequence
                 val subtitleDialog = MaterialAlertDialogBuilder(this, R.style.alertDialog)
